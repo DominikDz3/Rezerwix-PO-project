@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace Rezerwix_project.Forms
 {
-    public partial class Form2 : Form
+    public partial class DashboardView : UserControl
     {
-        public Form2()
+        public DashboardView()
         {
             InitializeComponent();
         }

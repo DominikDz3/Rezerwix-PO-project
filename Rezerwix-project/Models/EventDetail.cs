@@ -16,7 +16,6 @@ namespace Rezerwix.Models
         [Range(0, int.MaxValue, ErrorMessage = "Liczba miejsc nie mo¿e byæ ujemna.")]
         public int AvailableSeats { get; set; }
 
-        // W³aœciwoœæ pomocnicza (DODANE)
         public bool IsSeatAvailable => AvailableSeats > 0;
 
         public virtual ICollection<Reservation> Reservations { get; set; }

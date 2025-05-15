@@ -2,24 +2,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Rezerwix.Data;
 using Rezerwix.Models;
 
-namespace Rezerwix_project
+namespace Rezerwix_project.Forms
 {
     public partial class MainForm : Form
     {
-        private readonly AppDbContext _dbContext;
+        private readonly AppDbContext _db;
 
-        public MainForm(IServiceProvider serviceProvider)
+        public MainForm(AppDbContext db)
         {
             InitializeComponent();
-            _dbContext = serviceProvider.GetRequiredService<AppDbContext>();
+            _db = db;
+
+            LoadView(new LoginView(_db, this));
         }
 
-        private void buttonAddUser_Click(object sender, EventArgs e)
+        public void LoadView(UserControl view)
         {
-            var user = new User { Username = "Nowy U¿ytkownik" };
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
-            MessageBox.Show("Dodano u¿ytkownika!");
+            panelView.Controls.Clear();
+            view.Dock = DockStyle.Fill;
+            panelView.Controls.Add(view);
         }
     }
+
 }

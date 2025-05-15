@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Rezerwix.Data;
+using Rezerwix_project.Forms;
 using Rezerwix_project;
 
 namespace Rezerwix
@@ -11,19 +13,40 @@ namespace Rezerwix
         [STAThread]
         static void Main()
         {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json")
-                .Build();
+            var host = CreateHostBuilder().Build();
 
-            var services = new ServiceCollection();
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-
-            var serviceProvider = services.BuildServiceProvider();
+            using (var scope = host.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                context.Database.Migrate();
+                context.SeedData();
+            }
 
             ApplicationConfiguration.Initialize();
-            Application.Run(new MainForm(serviceProvider));
+
+            using (var scope = host.Services.CreateScope())
+            {
+                var form = scope.ServiceProvider.GetRequiredService<MainForm>();
+                Application.Run(form);
+            }
         }
+
+        static IHostBuilder CreateHostBuilder() =>
+            Host.CreateDefaultBuilder()
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    config.SetBasePath(AppContext.BaseDirectory);
+                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                })
+                .ConfigureServices((context, services) =>
+                {
+                    var connectionString = context.Configuration.GetConnectionString("DefaultConnection");
+
+                    services.AddDbContext<AppDbContext>(options =>
+                        options.UseNpgsql(connectionString));
+
+                    // Rejestracja formularzy z DI
+                    services.AddTransient<MainForm>();
+                });
     }
 }
