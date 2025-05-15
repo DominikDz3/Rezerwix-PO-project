@@ -12,6 +12,9 @@ namespace Rezerwix.Models
         [MaxLength(50, ErrorMessage = "Maksymalnie 50 znaków")]
         public string Username { get; set; }
 
+        [Required]
+        public string Role { get; set; }
+
         [Required(ErrorMessage = "Has³o jest wymagane")]
         [MaxLength(100, ErrorMessage = "Maksymalnie 100 znaków")]
         public string PasswordHash { get; set; }

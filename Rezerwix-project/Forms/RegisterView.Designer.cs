@@ -33,257 +33,325 @@
 
         private void InitializeComponent()
         {
+            tableLayoutPanelRegister = new TableLayoutPanel();
             lblTitle = new Label();
             lblUsername = new Label();
-            lblPassword = new Label();
-            lblConfirmPassword = new Label();
-            lblEmail = new Label();
-            lblFirstName = new Label();
-            lblLastName = new Label();
-            lblBirthDate = new Label();
             txtUsername = new TextBox();
+            lblPassword = new Label();
             txtPassword = new TextBox();
+            lblConfirmPassword = new Label();
             txtConfirmPassword = new TextBox();
+            lblEmail = new Label();
             txtEmail = new TextBox();
+            lblFirstName = new Label();
             txtFirstName = new TextBox();
+            lblLastName = new Label();
             txtLastName = new TextBox();
+            lblBirthDate = new Label();
             datePickerBirthDate = new DateTimePicker();
-            lblLoginLink = new Label();
+            lblRegisterMessage = new Label();
             btnRegister = new Button();
+            lblLoginLink = new Label();
+            tableLayoutPanelRegister.SuspendLayout();
             SuspendLayout();
+            // 
+            // tableLayoutPanelRegister
+            // 
+            tableLayoutPanelRegister.BackColor = Color.FromArgb(45, 45, 48);
+            tableLayoutPanelRegister.ColumnCount = 3;
+            tableLayoutPanelRegister.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanelRegister.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 400F));
+            tableLayoutPanelRegister.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanelRegister.Controls.Add(lblTitle, 0, 1);
+            tableLayoutPanelRegister.Controls.Add(lblUsername, 1, 3);
+            tableLayoutPanelRegister.Controls.Add(txtUsername, 1, 4);
+            tableLayoutPanelRegister.Controls.Add(lblPassword, 1, 5);
+            tableLayoutPanelRegister.Controls.Add(txtPassword, 1, 6);
+            tableLayoutPanelRegister.Controls.Add(lblConfirmPassword, 1, 7);
+            tableLayoutPanelRegister.Controls.Add(txtConfirmPassword, 1, 8);
+            tableLayoutPanelRegister.Controls.Add(lblEmail, 1, 9);
+            tableLayoutPanelRegister.Controls.Add(txtEmail, 1, 10);
+            tableLayoutPanelRegister.Controls.Add(lblFirstName, 1, 11);
+            tableLayoutPanelRegister.Controls.Add(txtFirstName, 1, 12);
+            tableLayoutPanelRegister.Controls.Add(lblLastName, 1, 13);
+            tableLayoutPanelRegister.Controls.Add(txtLastName, 1, 14);
+            tableLayoutPanelRegister.Controls.Add(lblBirthDate, 1, 15);
+            tableLayoutPanelRegister.Controls.Add(datePickerBirthDate, 1, 16);
+            tableLayoutPanelRegister.Controls.Add(lblRegisterMessage, 1, 17);
+            tableLayoutPanelRegister.Controls.Add(btnRegister, 1, 18);
+            tableLayoutPanelRegister.Controls.Add(lblLoginLink, 0, 20);
+            tableLayoutPanelRegister.Dock = DockStyle.Fill;
+            tableLayoutPanelRegister.Location = new Point(10, 10);
+            tableLayoutPanelRegister.Name = "tableLayoutPanelRegister";
+            tableLayoutPanelRegister.RowCount = 22;
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 15F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 45F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 15F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanelRegister.Size = new Size(130, 130);
+            tableLayoutPanelRegister.TabIndex = 0;
             // 
             // lblTitle
             // 
+            tableLayoutPanelRegister.SetColumnSpan(lblTitle, 3);
+            lblTitle.Dock = DockStyle.Fill;
             lblTitle.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
             lblTitle.ForeColor = Color.FromArgb(0, 122, 204);
-            lblTitle.Location = new Point(0, 20);
+            lblTitle.Location = new Point(3, -200);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(500, 50);
+            lblTitle.Size = new Size(124, 50);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "Rejestracja";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblUsername
             // 
+            lblUsername.Anchor = AnchorStyles.Left;
             lblUsername.AutoSize = true;
-            lblUsername.Font = new Font("Segoe UI", 9.75F);
-            lblUsername.ForeColor = Color.White;
-            lblUsername.Location = new Point(50, 90);
+            lblUsername.Font = new Font("Segoe UI", 9F);
+            lblUsername.ForeColor = Color.WhiteSmoke;
+            lblUsername.Location = new Point(-132, -135);
             lblUsername.Name = "lblUsername";
-            lblUsername.Size = new Size(129, 17);
+            lblUsername.Size = new Size(142, 20);
             lblUsername.TabIndex = 1;
-            lblUsername.Text = "Nazwa użytkownika *";
-            // 
-            // lblPassword
-            // 
-            lblPassword.AutoSize = true;
-            lblPassword.Font = new Font("Segoe UI", 9.75F);
-            lblPassword.ForeColor = Color.White;
-            lblPassword.Location = new Point(50, 150);
-            lblPassword.Name = "lblPassword";
-            lblPassword.Size = new Size(50, 17);
-            lblPassword.TabIndex = 2;
-            lblPassword.Text = "Hasło *";
-            // 
-            // lblConfirmPassword
-            // 
-            lblConfirmPassword.AutoSize = true;
-            lblConfirmPassword.Font = new Font("Segoe UI", 9.75F);
-            lblConfirmPassword.ForeColor = Color.White;
-            lblConfirmPassword.Location = new Point(50, 210);
-            lblConfirmPassword.Name = "lblConfirmPassword";
-            lblConfirmPassword.Size = new Size(109, 17);
-            lblConfirmPassword.TabIndex = 3;
-            lblConfirmPassword.Text = "Potwierdź hasło *";
-            // 
-            // lblEmail
-            // 
-            lblEmail.AutoSize = true;
-            lblEmail.Font = new Font("Segoe UI", 9.75F);
-            lblEmail.ForeColor = Color.White;
-            lblEmail.Location = new Point(50, 270);
-            lblEmail.Name = "lblEmail";
-            lblEmail.Size = new Size(48, 17);
-            lblEmail.TabIndex = 4;
-            lblEmail.Text = "Email *";
-            // 
-            // lblFirstName
-            // 
-            lblFirstName.AutoSize = true;
-            lblFirstName.Font = new Font("Segoe UI", 9.75F);
-            lblFirstName.ForeColor = Color.White;
-            lblFirstName.Location = new Point(50, 330);
-            lblFirstName.Name = "lblFirstName";
-            lblFirstName.Size = new Size(41, 17);
-            lblFirstName.TabIndex = 5;
-            lblFirstName.Text = "Imię *";
-            // 
-            // lblLastName
-            // 
-            lblLastName.AutoSize = true;
-            lblLastName.Font = new Font("Segoe UI", 9.75F);
-            lblLastName.ForeColor = Color.White;
-            lblLastName.Location = new Point(260, 330);
-            lblLastName.Name = "lblLastName";
-            lblLastName.Size = new Size(72, 17);
-            lblLastName.TabIndex = 6;
-            lblLastName.Text = "Nazwisko *";
-            // 
-            // lblBirthDate
-            // 
-            lblBirthDate.AutoSize = true;
-            lblBirthDate.Font = new Font("Segoe UI", 9.75F);
-            lblBirthDate.ForeColor = Color.White;
-            lblBirthDate.Location = new Point(50, 390);
-            lblBirthDate.Name = "lblBirthDate";
-            lblBirthDate.Size = new Size(106, 17);
-            lblBirthDate.TabIndex = 7;
-            lblBirthDate.Text = "Data urodzenia *";
+            lblUsername.Text = "Nazwa użytkownika:";
             // 
             // txtUsername
             // 
-            txtUsername.BackColor = Color.FromArgb(30, 30, 30);
+            txtUsername.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txtUsername.BackColor = Color.FromArgb(60, 60, 60);
             txtUsername.BorderStyle = BorderStyle.FixedSingle;
-            txtUsername.Font = new Font("Segoe UI", 10F);
-            txtUsername.ForeColor = Color.White;
-            txtUsername.Location = new Point(50, 110);
-            txtUsername.MaxLength = 50;
+            txtUsername.Font = new Font("Segoe UI", 9F);
+            txtUsername.ForeColor = Color.WhiteSmoke;
+            txtUsername.Location = new Point(-132, -112);
             txtUsername.Name = "txtUsername";
-            txtUsername.Size = new Size(400, 25);
-            txtUsername.TabIndex = 1;
+            txtUsername.Size = new Size(394, 27);
+            txtUsername.TabIndex = 2;
+            // 
+            // lblPassword
+            // 
+            lblPassword.Anchor = AnchorStyles.Left;
+            lblPassword.AutoSize = true;
+            lblPassword.Font = new Font("Segoe UI", 9F);
+            lblPassword.ForeColor = Color.WhiteSmoke;
+            lblPassword.Location = new Point(-132, -85);
+            lblPassword.Name = "lblPassword";
+            lblPassword.Size = new Size(50, 20);
+            lblPassword.TabIndex = 3;
+            lblPassword.Text = "Hasło:";
             // 
             // txtPassword
             // 
-            txtPassword.BackColor = Color.FromArgb(30, 30, 30);
+            txtPassword.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txtPassword.BackColor = Color.FromArgb(60, 60, 60);
             txtPassword.BorderStyle = BorderStyle.FixedSingle;
-            txtPassword.Font = new Font("Segoe UI", 10F);
-            txtPassword.ForeColor = Color.White;
-            txtPassword.Location = new Point(50, 170);
-            txtPassword.MaxLength = 100;
+            txtPassword.Font = new Font("Segoe UI", 9F);
+            txtPassword.ForeColor = Color.WhiteSmoke;
+            txtPassword.Location = new Point(-132, -62);
             txtPassword.Name = "txtPassword";
             txtPassword.PasswordChar = '●';
-            txtPassword.Size = new Size(400, 25);
-            txtPassword.TabIndex = 2;
+            txtPassword.Size = new Size(394, 27);
+            txtPassword.TabIndex = 4;
+            // 
+            // lblConfirmPassword
+            // 
+            lblConfirmPassword.Anchor = AnchorStyles.Left;
+            lblConfirmPassword.AutoSize = true;
+            lblConfirmPassword.Font = new Font("Segoe UI", 9F);
+            lblConfirmPassword.ForeColor = Color.WhiteSmoke;
+            lblConfirmPassword.Location = new Point(-132, -35);
+            lblConfirmPassword.Name = "lblConfirmPassword";
+            lblConfirmPassword.Size = new Size(116, 20);
+            lblConfirmPassword.TabIndex = 5;
+            lblConfirmPassword.Text = "Potwierdź hasło:";
             // 
             // txtConfirmPassword
             // 
-            txtConfirmPassword.BackColor = Color.FromArgb(30, 30, 30);
+            txtConfirmPassword.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txtConfirmPassword.BackColor = Color.FromArgb(60, 60, 60);
             txtConfirmPassword.BorderStyle = BorderStyle.FixedSingle;
-            txtConfirmPassword.Font = new Font("Segoe UI", 10F);
-            txtConfirmPassword.ForeColor = Color.White;
-            txtConfirmPassword.Location = new Point(50, 230);
-            txtConfirmPassword.MaxLength = 100;
+            txtConfirmPassword.Font = new Font("Segoe UI", 9F);
+            txtConfirmPassword.ForeColor = Color.WhiteSmoke;
+            txtConfirmPassword.Location = new Point(-132, -12);
             txtConfirmPassword.Name = "txtConfirmPassword";
             txtConfirmPassword.PasswordChar = '●';
-            txtConfirmPassword.Size = new Size(400, 25);
-            txtConfirmPassword.TabIndex = 3;
+            txtConfirmPassword.Size = new Size(394, 27);
+            txtConfirmPassword.TabIndex = 6;
+            // 
+            // lblEmail
+            // 
+            lblEmail.Anchor = AnchorStyles.Left;
+            lblEmail.AutoSize = true;
+            lblEmail.Font = new Font("Segoe UI", 9F);
+            lblEmail.ForeColor = Color.WhiteSmoke;
+            lblEmail.Location = new Point(-132, 15);
+            lblEmail.Name = "lblEmail";
+            lblEmail.Size = new Size(49, 20);
+            lblEmail.TabIndex = 7;
+            lblEmail.Text = "Email:";
             // 
             // txtEmail
             // 
-            txtEmail.BackColor = Color.FromArgb(30, 30, 30);
+            txtEmail.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txtEmail.BackColor = Color.FromArgb(60, 60, 60);
             txtEmail.BorderStyle = BorderStyle.FixedSingle;
-            txtEmail.Font = new Font("Segoe UI", 10F);
-            txtEmail.ForeColor = Color.White;
-            txtEmail.Location = new Point(50, 290);
+            txtEmail.Font = new Font("Segoe UI", 9F);
+            txtEmail.ForeColor = Color.WhiteSmoke;
+            txtEmail.Location = new Point(-132, 38);
             txtEmail.Name = "txtEmail";
-            txtEmail.Size = new Size(400, 25);
-            txtEmail.TabIndex = 4;
+            txtEmail.Size = new Size(394, 27);
+            txtEmail.TabIndex = 8;
+            // 
+            // lblFirstName
+            // 
+            lblFirstName.Anchor = AnchorStyles.Left;
+            lblFirstName.AutoSize = true;
+            lblFirstName.Font = new Font("Segoe UI", 9F);
+            lblFirstName.ForeColor = Color.WhiteSmoke;
+            lblFirstName.Location = new Point(-132, 65);
+            lblFirstName.Name = "lblFirstName";
+            lblFirstName.Size = new Size(41, 20);
+            lblFirstName.TabIndex = 9;
+            lblFirstName.Text = "Imię:";
             // 
             // txtFirstName
             // 
-            txtFirstName.BackColor = Color.FromArgb(30, 30, 30);
+            txtFirstName.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txtFirstName.BackColor = Color.FromArgb(60, 60, 60);
             txtFirstName.BorderStyle = BorderStyle.FixedSingle;
-            txtFirstName.Font = new Font("Segoe UI", 10F);
-            txtFirstName.ForeColor = Color.White;
-            txtFirstName.Location = new Point(50, 350);
-            txtFirstName.MaxLength = 50;
+            txtFirstName.Font = new Font("Segoe UI", 9F);
+            txtFirstName.ForeColor = Color.WhiteSmoke;
+            txtFirstName.Location = new Point(-132, 88);
             txtFirstName.Name = "txtFirstName";
-            txtFirstName.Size = new Size(190, 25);
-            txtFirstName.TabIndex = 5;
+            txtFirstName.Size = new Size(394, 27);
+            txtFirstName.TabIndex = 10;
+            // 
+            // lblLastName
+            // 
+            lblLastName.Anchor = AnchorStyles.Left;
+            lblLastName.AutoSize = true;
+            lblLastName.Font = new Font("Segoe UI", 9F);
+            lblLastName.ForeColor = Color.WhiteSmoke;
+            lblLastName.Location = new Point(-132, 115);
+            lblLastName.Name = "lblLastName";
+            lblLastName.Size = new Size(75, 20);
+            lblLastName.TabIndex = 11;
+            lblLastName.Text = "Nazwisko:";
             // 
             // txtLastName
             // 
-            txtLastName.BackColor = Color.FromArgb(30, 30, 30);
+            txtLastName.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txtLastName.BackColor = Color.FromArgb(60, 60, 60);
             txtLastName.BorderStyle = BorderStyle.FixedSingle;
-            txtLastName.Font = new Font("Segoe UI", 10F);
-            txtLastName.ForeColor = Color.White;
-            txtLastName.Location = new Point(260, 350);
-            txtLastName.MaxLength = 50;
+            txtLastName.Font = new Font("Segoe UI", 9F);
+            txtLastName.ForeColor = Color.WhiteSmoke;
+            txtLastName.Location = new Point(-132, 138);
             txtLastName.Name = "txtLastName";
-            txtLastName.Size = new Size(190, 25);
-            txtLastName.TabIndex = 6;
+            txtLastName.Size = new Size(394, 27);
+            txtLastName.TabIndex = 12;
+            // 
+            // lblBirthDate
+            // 
+            lblBirthDate.Anchor = AnchorStyles.Left;
+            lblBirthDate.AutoSize = true;
+            lblBirthDate.Font = new Font("Segoe UI", 9F);
+            lblBirthDate.ForeColor = Color.WhiteSmoke;
+            lblBirthDate.Location = new Point(-132, 165);
+            lblBirthDate.Name = "lblBirthDate";
+            lblBirthDate.Size = new Size(114, 20);
+            lblBirthDate.TabIndex = 13;
+            lblBirthDate.Text = "Data urodzenia:";
             // 
             // datePickerBirthDate
             // 
-            datePickerBirthDate.CalendarFont = new Font("Segoe UI", 9F);
-            datePickerBirthDate.CalendarForeColor = Color.White;
-            datePickerBirthDate.CalendarMonthBackground = Color.FromArgb(30, 30, 30);
+            datePickerBirthDate.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            datePickerBirthDate.BackColor = Color.FromArgb(60, 60, 60);
+            datePickerBirthDate.CalendarForeColor = Color.WhiteSmoke;
+            datePickerBirthDate.CalendarMonthBackground = Color.FromArgb(60, 60, 60);
             datePickerBirthDate.CalendarTitleBackColor = Color.FromArgb(0, 122, 204);
-            datePickerBirthDate.CalendarTitleForeColor = Color.White;
-            datePickerBirthDate.CalendarTrailingForeColor = Color.Gray;
+            datePickerBirthDate.CalendarTitleForeColor = Color.WhiteSmoke;
+            datePickerBirthDate.Font = new Font("Segoe UI", 9F);
             datePickerBirthDate.Format = DateTimePickerFormat.Short;
-            datePickerBirthDate.Location = new Point(50, 410);
-            datePickerBirthDate.MinDate = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            datePickerBirthDate.Location = new Point(-132, 188);
             datePickerBirthDate.Name = "datePickerBirthDate";
-            datePickerBirthDate.Size = new Size(190, 25);
-            datePickerBirthDate.TabIndex = 7;
+            datePickerBirthDate.Size = new Size(394, 27);
+            datePickerBirthDate.TabIndex = 14;
             // 
-            // lblLoginLink
+            // lblRegisterMessage
             // 
-            lblLoginLink.AutoSize = true;
-            lblLoginLink.Cursor = Cursors.Hand;
-            lblLoginLink.Font = new Font("Segoe UI", 9F, FontStyle.Underline);
-            lblLoginLink.ForeColor = Color.FromArgb(0, 122, 204);
-            lblLoginLink.Location = new Point(180, 510);
-            lblLoginLink.Name = "lblLoginLink";
-            lblLoginLink.Size = new Size(133, 15);
-            lblLoginLink.TabIndex = 9;
-            lblLoginLink.Text = "Masz konto? Zaloguj się";
-            lblLoginLink.Click += this.lblLoginLink_Click;
+            lblRegisterMessage.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            lblRegisterMessage.Font = new Font("Segoe UI", 9F);
+            lblRegisterMessage.ForeColor = Color.Tomato;
+            lblRegisterMessage.Location = new Point(-132, 217);
+            lblRegisterMessage.Name = "lblRegisterMessage";
+            lblRegisterMessage.Size = new Size(394, 20);
+            lblRegisterMessage.TabIndex = 17;
+            lblRegisterMessage.TextAlign = ContentAlignment.MiddleCenter;
+            lblRegisterMessage.Visible = false;
             // 
             // btnRegister
             // 
+            btnRegister.Anchor = AnchorStyles.None;
             btnRegister.BackColor = Color.FromArgb(0, 122, 204);
-            btnRegister.Cursor = Cursors.Hand;
             btnRegister.FlatAppearance.BorderSize = 0;
             btnRegister.FlatStyle = FlatStyle.Flat;
-            btnRegister.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            btnRegister.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             btnRegister.ForeColor = Color.White;
-            btnRegister.Location = new Point(150, 460);
+            btnRegister.Location = new Point(-35, 243);
             btnRegister.Name = "btnRegister";
-            btnRegister.Size = new Size(200, 40);
-            btnRegister.TabIndex = 8;
+            btnRegister.Size = new Size(200, 39);
+            btnRegister.TabIndex = 15;
             btnRegister.Text = "Zarejestruj się";
             btnRegister.UseVisualStyleBackColor = false;
             // 
+            // lblLoginLink
+            // 
+            tableLayoutPanelRegister.SetColumnSpan(lblLoginLink, 3);
+            lblLoginLink.Cursor = Cursors.Hand;
+            lblLoginLink.Dock = DockStyle.Fill;
+            lblLoginLink.Font = new Font("Segoe UI", 9.75F, FontStyle.Underline);
+            lblLoginLink.ForeColor = Color.FromArgb(135, 206, 250);
+            lblLoginLink.Location = new Point(3, 300);
+            lblLoginLink.Name = "lblLoginLink";
+            lblLoginLink.Size = new Size(124, 30);
+            lblLoginLink.TabIndex = 16;
+            lblLoginLink.Text = "Masz już konto? Zaloguj się";
+            lblLoginLink.TextAlign = ContentAlignment.MiddleCenter;
+            // 
             // RegisterView
             // 
-            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleDimensions = new SizeF(8F, 19F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(45, 45, 48);
-            Controls.Add(lblLoginLink);
-            Controls.Add(btnRegister);
-            Controls.Add(datePickerBirthDate);
-            Controls.Add(lblBirthDate);
-            Controls.Add(txtLastName);
-            Controls.Add(lblLastName);
-            Controls.Add(txtFirstName);
-            Controls.Add(lblFirstName);
-            Controls.Add(txtEmail);
-            Controls.Add(lblEmail);
-            Controls.Add(txtConfirmPassword);
-            Controls.Add(lblConfirmPassword);
-            Controls.Add(txtPassword);
-            Controls.Add(lblPassword);
-            Controls.Add(txtUsername);
-            Controls.Add(lblUsername);
-            Controls.Add(lblTitle);
-            Font = new Font("Segoe UI", 9.75F);
-            ForeColor = Color.White;
+            Controls.Add(tableLayoutPanelRegister);
+            Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 238);
             Name = "RegisterView";
-            Size = new Size(500, 530);
+            Padding = new Padding(10);
+            tableLayoutPanelRegister.ResumeLayout(false);
+            tableLayoutPanelRegister.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
+
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelRegister;
+        private System.Windows.Forms.Label lblRegisterMessage;
+
     }
 }

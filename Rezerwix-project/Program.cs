@@ -4,30 +4,50 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Rezerwix.Data;
 using Rezerwix_project.Forms;
-using Rezerwix_project;
+using System;
+using System.IO;
+using System.Windows.Forms;
 
 namespace Rezerwix
 {
-    internal static class Program
+    public static class Program
     {
         [STAThread]
         static void Main()
-        {
-            var host = CreateHostBuilder().Build();
-
-            using (var scope = host.Services.CreateScope())
+        { 
+            try
             {
-                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                context.Database.Migrate();
-                context.SeedData();
+                ApplicationConfiguration.Initialize();
+
+                var host = CreateHostBuilder().Build();
+
+                using (var scope = host.Services.CreateScope())
+                {
+                    var services = scope.ServiceProvider;
+                    try
+                    {
+                        var context = services.GetRequiredService<AppDbContext>();
+                        context.Database.Migrate();
+                        context.SeedData();
+                    }
+                    catch (Exception exDb)
+                    {
+                        MessageBox.Show($"Wyst¹pi³ b³¹d podczas inicjalizacji bazy danych: {exDb.Message}", "B³¹d Bazy Danych", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
+                var mainForm = host.Services.GetRequiredService<MainForm>();
+                if (mainForm == null)
+                {
+                    MessageBox.Show("Krytyczny b³¹d: Nie uda³o siê utworzyæ g³ównego okna aplikacji.", "B³¹d Krytyczny Aplikacji", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                Application.Run(mainForm);
             }
-
-            ApplicationConfiguration.Initialize();
-
-            using (var scope = host.Services.CreateScope())
+            catch (Exception exGlobal)
             {
-                var form = scope.ServiceProvider.GetRequiredService<MainForm>();
-                Application.Run(form);
+                MessageBox.Show($"Nieoczekiwany b³¹d krytyczny podczas uruchamiania aplikacji: {exGlobal.Message}", "B³¹d Krytyczny Aplikacji", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -45,8 +65,10 @@ namespace Rezerwix
                     services.AddDbContext<AppDbContext>(options =>
                         options.UseNpgsql(connectionString));
 
-                    // Rejestracja formularzy z DI
-                    services.AddTransient<MainForm>();
+                    services.AddSingleton<MainForm>();
+                    services.AddTransient<LoginView>();
+                    services.AddTransient<RegisterView>();
+                    services.AddTransient<DashboardView>();
                 });
     }
 }

@@ -102,6 +102,7 @@ namespace Rezerwix.Data
             {
                 Username = "admin",
                 Email = "admin@example.com",
+                Role = "admin",
                 PasswordHash = adminHash,
                 Salt = adminSalt,
                 FirstName = "Jan",
@@ -112,6 +113,7 @@ namespace Rezerwix.Data
             {
                 Username = "anowak",
                 Email = "anowak@example.com",
+                Role = "user",
                 PasswordHash = userHash,
                 Salt = userSalt,
                 FirstName = "Anna",
