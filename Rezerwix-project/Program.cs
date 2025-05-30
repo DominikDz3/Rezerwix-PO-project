@@ -4,9 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Rezerwix.Data;
 using Rezerwix_project.Forms;
-using System;
-using System.IO;
-using System.Windows.Forms;
 
 namespace Rezerwix
 {
@@ -69,6 +66,10 @@ namespace Rezerwix
                     services.AddTransient<LoginView>();
                     services.AddTransient<RegisterView>();
                     services.AddTransient<DashboardView>();
+                    services.AddTransient<UpcomingEventsView>();
+                    services.AddTransient<EventDetailsView>();
+                    services.AddTransient<MyTicketsView>();
+                    services.AddTransient<MyProfileView>();
                 });
     }
 }

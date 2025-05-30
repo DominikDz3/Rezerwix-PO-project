@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Rezerwix.Models;
 using System.Security.Cryptography;
 
@@ -20,7 +19,6 @@ namespace Rezerwix.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Konfiguracja relacji
             modelBuilder.Entity<EventCategory>()
                 .HasKey(ec => new { ec.EventId, ec.CategoryId });
 
@@ -52,7 +50,6 @@ namespace Rezerwix.Data
                 .HasForeignKey(r => r.EventDetailId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Konfiguracje dodatkowe
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Username)
                 .IsUnique();
@@ -61,6 +58,10 @@ namespace Rezerwix.Data
                 .Property(e => e.Title)
                 .IsRequired()
                 .HasMaxLength(100);
+
+            modelBuilder.Entity<EventDetail>()
+                .Property(ed => ed.PricePerTicket)
+                .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<EventDetail>()
                 .Property(ed => ed.AvailableSeats)
@@ -78,7 +79,6 @@ namespace Rezerwix.Data
                 SeedEventDetails();
                 SeedEventCategories();
                 SeedReservations();
-
                 SaveChanges();
                 transaction.Commit();
             }
@@ -97,45 +97,38 @@ namespace Rezerwix.Data
                 var (userHash, userSalt) = PasswordHasher.HashPassword("User123!");
 
                 var users = new List<User>
-        {
-            new User
-            {
-                Username = "admin",
-                Email = "admin@example.com",
-                Role = "admin",
-                PasswordHash = adminHash,
-                Salt = adminSalt,
-                FirstName = "Jan",
-                LastName = "Kowalski",
-                DateOfBirth = DateTime.SpecifyKind(new DateTime(1978, 8, 14), DateTimeKind.Utc)
-            },
-            new User
-            {
-                Username = "anowak",
-                Email = "anowak@example.com",
-                Role = "user",
-                PasswordHash = userHash,
-                Salt = userSalt,
-                FirstName = "Anna",
-                LastName = "Nowak",
-                DateOfBirth = DateTime.SpecifyKind(new DateTime(1999, 5, 20), DateTimeKind.Utc)
-            }
-        };
-
+                {
+                    new User
+                    {
+                        Username = "admin", Email = "admin@example.com", Role = "admin",
+                        PasswordHash = adminHash, Salt = adminSalt, FirstName = "Jan",
+                        LastName = "Kowalski", DateOfBirth = DateTime.SpecifyKind(new DateTime(1978, 8, 14), DateTimeKind.Utc)
+                    },
+                    new User
+                    {
+                        Username = "anowak", Email = "anowak@example.com", Role = "user",
+                        PasswordHash = userHash, Salt = userSalt, FirstName = "Anna",
+                        LastName = "Nowak", DateOfBirth = DateTime.SpecifyKind(new DateTime(1999, 5, 20), DateTimeKind.Utc)
+                    }
+                };
                 Users.AddRange(users);
-                SaveChanges(); // Zapisujemy aby mieć ID
+                SaveChanges();
             }
         }
-        private void SeedCategories() {
+        private void SeedCategories()
+        {
             if (!Categories.Any())
             {
                 var categories = new List<Category>
-        {
-            new Category { Name = "Konferencje" },
-            new Category { Name = "Warsztaty" },
-            new Category { Name = "Koncerty" }
-        };
-
+                {
+                    new Category { Name = "Konferencje" },
+                    new Category { Name = "Warsztaty" },        
+                    new Category { Name = "Koncerty" },         
+                    new Category { Name = "Szkolenia Biznesowe" },
+                    new Category { Name = "Wystawy Artystyczne" },
+                    new Category { Name = "Spotkania Networkingowe" },
+                    new Category { Name = "Sport" }
+                };
                 Categories.AddRange(categories);
                 SaveChanges();
             }
@@ -146,27 +139,50 @@ namespace Rezerwix.Data
             if (!Events.Any())
             {
                 var events = new List<Event>
-        {
-            new Event
-            {
-                Title = "Konferencja IT",
-                Description = "Doroczna konferencja programistyczna",
-                StartDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(30), DateTimeKind.Utc),
-                EndDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(30), DateTimeKind.Utc),
-                Location = "Warszawa"
-            },
-            new Event
-            {
-                Title = "Warsztaty programowania",
-                Description = "Warsztaty z C# i .NET",
-                StartDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(15), DateTimeKind.Utc),
-                EndDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(12), DateTimeKind.Utc),
-                Location = "Kraków"
-            }
-        };
-
+                {
+                    new Event
+                    {
+                        Title = "Konferencja IT Masters",
+                        Description = "Doroczna konferencja programistyczna dla profesjonalistów IT.",
+                        StartDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(30), DateTimeKind.Utc),
+                        EndDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(31), DateTimeKind.Utc),
+                        Location = "Warszawa, PGE Narodowy"
+                    },
+                    new Event
+                    {
+                        Title = "Warsztaty Agile & Scrum",
+                        Description = "Intensywne warsztaty z metodyk zwinnych C# i .NET.",
+                        StartDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(45), DateTimeKind.Utc),
+                        EndDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(46), DateTimeKind.Utc),
+                        Location = "Kraków, Hub Kolektyw"
+                    },
+                    new Event
+                    {
+                        Title = "Jazzowy Wieczór nad Wisłą",
+                        Description = "Plenerowy koncert najlepszych polskich zespołów jazzowych.",
+                        StartDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(60), DateTimeKind.Utc),
+                        EndDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(60).AddHours(3), DateTimeKind.Utc),
+                        Location = "Warszawa, Bulwary Wiślane"
+                    },
+                    new Event
+                    {
+                        Title = "Sztuka Abstrakcji XX Wieku",
+                        Description = "Wystawa prac pionierów abstrakcjonizmu.",
+                        StartDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(20), DateTimeKind.Utc),
+                        EndDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(50), DateTimeKind.Utc),
+                        Location = "Poznań, Muzeum Narodowe"
+                    },
+                    new Event
+                    {
+                        Title = "Startup Connect Rzeszów",
+                        Description = "Spotkanie dla innowatorów, founderów i inwestorów z regionu Podkarpacia.",
+                        StartDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(25), DateTimeKind.Utc),
+                        EndDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(25).AddHours(5), DateTimeKind.Utc),
+                        Location = "Rzeszów, Urban Lab"
+                    }
+                };
                 Events.AddRange(events);
-                SaveChanges(); // Zapisujemy aby mieć ID eventów
+                SaveChanges();
             }
         }
 
@@ -174,23 +190,34 @@ namespace Rezerwix.Data
         {
             if (!EventDetails.Any())
             {
-                var events = Events.ToList();
+                var allEvents = Events.ToList();
+                if (allEvents.Count < 5)
+                {
+                    Console.WriteLine("OSTRZEŻENIE: Nie wszystkie wydarzenia zostały poprawnie załadowane do SeedEventDetails.");
+                    return;
+                }
 
                 var details = new List<EventDetail>
-        {
-            new EventDetail
-            {
-                EventId = events[0].EventId,
-                EventDate = events[0].StartDate,
-                AvailableSeats = 100
-            },
-            new EventDetail
-            {
-                EventId = events[1].EventId,
-                EventDate = events[1].StartDate,
-                AvailableSeats = 30
-            }
-        };
+                {
+                    new EventDetail { EventId = allEvents.First(e => e.Title == "Konferencja IT Masters").EventId,
+                                      EventDate = allEvents.First(e => e.Title == "Konferencja IT Masters").StartDate,
+                                      AvailableSeats = 100, PricePerTicket = 299.99m },
+                    new EventDetail { EventId = allEvents.First(e => e.Title == "Konferencja IT Masters").EventId,
+                                      EventDate = allEvents.First(e => e.Title == "Konferencja IT Masters").StartDate.AddDays(1),
+                                      AvailableSeats = 80, PricePerTicket = 299.99m },
+                    new EventDetail { EventId = allEvents.First(e => e.Title == "Warsztaty Agile & Scrum").EventId,
+                                      EventDate = allEvents.First(e => e.Title == "Warsztaty Agile & Scrum").StartDate,
+                                      AvailableSeats = 30, PricePerTicket = 450.00m },
+                    new EventDetail { EventId = allEvents.First(e => e.Title == "Jazzowy Wieczór nad Wisłą").EventId,
+                                      EventDate = allEvents.First(e => e.Title == "Jazzowy Wieczór nad Wisłą").StartDate,
+                                      AvailableSeats = 200, PricePerTicket = 75.50m },
+                    new EventDetail { EventId = allEvents.First(e => e.Title == "Sztuka Abstrakcji XX Wieku").EventId,
+                                      EventDate = allEvents.First(e => e.Title == "Sztuka Abstrakcji XX Wieku").StartDate,
+                                      AvailableSeats = 500, PricePerTicket = 40.00m },
+                    new EventDetail { EventId = allEvents.First(e => e.Title == "Startup Connect Rzeszów").EventId,
+                                      EventDate = allEvents.First(e => e.Title == "Startup Connect Rzeszów").StartDate,
+                                      AvailableSeats = 150, PricePerTicket = 0.00m }
+                };
                 EventDetails.AddRange(details);
                 SaveChanges();
             }
@@ -200,16 +227,25 @@ namespace Rezerwix.Data
         {
             if (!EventCategories.Any())
             {
-                var events = Events.ToList();
-                var categories = Categories.ToList();
+                var allEvents = Events.ToList();
+                var allCategories = Categories.ToList();
+                if (allEvents.Count < 5 || allCategories.Count < 7)
+                {
+                    Console.WriteLine("OSTRZEŻENIE: Nie wszystkie wydarzenia/kategorie zostały poprawnie załadowane do SeedEventCategories.");
+                    return;
+                }
 
                 var eventCategories = new List<EventCategory>
-        {
-            new EventCategory { EventId = events[0].EventId, CategoryId = categories[0].CategoryId },
-            new EventCategory { EventId = events[0].EventId, CategoryId = categories[1].CategoryId },
-            new EventCategory { EventId = events[1].EventId, CategoryId = categories[1].CategoryId }
-        };
-
+                {
+                    new EventCategory { EventId = allEvents.First(e => e.Title == "Konferencja IT Masters").EventId, CategoryId = allCategories.First(c => c.Name == "Konferencje").CategoryId },
+                    new EventCategory { EventId = allEvents.First(e => e.Title == "Konferencja IT Masters").EventId, CategoryId = allCategories.First(c => c.Name == "Szkolenia Biznesowe").CategoryId },
+                    new EventCategory { EventId = allEvents.First(e => e.Title == "Warsztaty Agile & Scrum").EventId, CategoryId = allCategories.First(c => c.Name == "Warsztaty").CategoryId },
+                    new EventCategory { EventId = allEvents.First(e => e.Title == "Warsztaty Agile & Scrum").EventId, CategoryId = allCategories.First(c => c.Name == "Szkolenia Biznesowe").CategoryId },
+                    new EventCategory { EventId = allEvents.First(e => e.Title == "Jazzowy Wieczór nad Wisłą").EventId, CategoryId = allCategories.First(c => c.Name == "Koncerty").CategoryId },
+                    new EventCategory { EventId = allEvents.First(e => e.Title == "Sztuka Abstrakcji XX Wieku").EventId, CategoryId = allCategories.First(c => c.Name == "Wystawy Artystyczne").CategoryId },
+                    new EventCategory { EventId = allEvents.First(e => e.Title == "Startup Connect Rzeszów").EventId, CategoryId = allCategories.First(c => c.Name == "Spotkania Networkingowe").CategoryId },
+                    new EventCategory { EventId = allEvents.First(e => e.Title == "Startup Connect Rzeszów").EventId, CategoryId = allCategories.First(c => c.Name == "Konferencje").CategoryId },
+                };
                 EventCategories.AddRange(eventCategories);
                 SaveChanges();
             }
@@ -217,21 +253,48 @@ namespace Rezerwix.Data
 
         private void SeedReservations()
         {
-            if (!Reservations.Any())
+            if (!Reservations.Any() && Users.Any(u => u.Username == "anowak") && EventDetails.Any())
             {
-                var user = Users.First(u => u.Username == "anowak");
-                var eventDetail = EventDetails.First();
+                var userAnowak = Users.First(u => u.Username == "anowak");
+                var allEventDetails = EventDetails.Include(ed => ed.Event).ToList();
 
-                var reservation = new Reservation
+                if (allEventDetails.Count < 3)
                 {
-                    UserId = user.UserId,
-                    EventDetailId = eventDetail.EventDetailId,
-                    ReservationDate = DateTime.SpecifyKind(new DateTime(2025, 5, 10), DateTimeKind.Utc),
-                    NumberOfTickets = 1
-                };
+                    Console.WriteLine("OSTRZEŻENIE: Niewystarczająca liczba EventDetails do stworzenia rezerwacji startowych.");
+                    return;
+                }
 
-                Reservations.Add(reservation);
-                SaveChanges();
+                var jazzEventDetail = allEventDetails.FirstOrDefault(ed => ed.Event.Title == "Jazzowy Wieczór nad Wisłą");
+                var itConfDay1Detail = allEventDetails.FirstOrDefault(ed => ed.Event.Title == "Konferencja IT Masters" && ed.EventDate == ed.Event.StartDate);
+
+                var reservations = new List<Reservation>();
+
+                if (itConfDay1Detail != null)
+                {
+                    reservations.Add(new Reservation
+                    {
+                        UserId = userAnowak.UserId,
+                        EventDetailId = itConfDay1Detail.EventDetailId,
+                        ReservationDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(-5), DateTimeKind.Utc),
+                        NumberOfTickets = 2
+                    });
+                }
+                if (jazzEventDetail != null)
+                {
+                    reservations.Add(new Reservation
+                    {
+                        UserId = userAnowak.UserId,
+                        EventDetailId = jazzEventDetail.EventDetailId,
+                        ReservationDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(-2), DateTimeKind.Utc),
+                        NumberOfTickets = 1
+                    });
+                }
+
+                if (reservations.Any())
+                {
+                    Reservations.AddRange(reservations);
+                    SaveChanges();
+                }
             }
         }
 
@@ -244,22 +307,18 @@ namespace Rezerwix.Data
             public static (string Hash, string Salt) HashPassword(string password)
             {
                 byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
-                var pbkdf2 = new Rfc2898DeriveBytes(
-                    password, salt, Iterations, HashAlgorithmName.SHA256);
-                return (
-                    Convert.ToBase64String(pbkdf2.GetBytes(HashSize)),
-                    Convert.ToBase64String(salt)
-                );
+                var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA256);
+                return (Convert.ToBase64String(pbkdf2.GetBytes(HashSize)), Convert.ToBase64String(salt));
             }
 
             public static bool VerifyPassword(string password, string storedHash, string storedSalt)
             {
                 byte[] salt = Convert.FromBase64String(storedSalt);
                 byte[] hash = Convert.FromBase64String(storedHash);
-                var pbkdf2 = new Rfc2898DeriveBytes(
-                    password, salt, Iterations, HashAlgorithmName.SHA256);
+                var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA256);
                 return pbkdf2.GetBytes(HashSize).SequenceEqual(hash);
             }
         }
     }
 }
+

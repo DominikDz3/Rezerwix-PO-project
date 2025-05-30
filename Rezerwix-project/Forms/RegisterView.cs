@@ -194,5 +194,10 @@ namespace Rezerwix_project.Forms
                 MessageBox.Show($"Nie można załadować widoku logowania: {ex.Message}", "Błąd Nawigacji", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void btnRegister_Click_1(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -108,6 +108,9 @@ namespace Rezerwix_project.Migrations
                     b.Property<int>("EventId")
                         .HasColumnType("integer");
 
+                    b.Property<decimal>("PricePerTicket")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("EventDetailId");
 
                     b.HasIndex("EventId");

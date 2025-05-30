@@ -106,7 +106,7 @@
             tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 15F));
             tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableLayoutPanelRegister.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanelRegister.Size = new Size(130, 130);
+            tableLayoutPanelRegister.Size = new Size(753, 528);
             tableLayoutPanelRegister.TabIndex = 0;
             // 
             // lblTitle
@@ -115,9 +115,9 @@
             lblTitle.Dock = DockStyle.Fill;
             lblTitle.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
             lblTitle.ForeColor = Color.FromArgb(0, 122, 204);
-            lblTitle.Location = new Point(3, -200);
+            lblTitle.Location = new Point(3, -1);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(124, 50);
+            lblTitle.Size = new Size(747, 50);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "Rejestracja";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
@@ -128,7 +128,7 @@
             lblUsername.AutoSize = true;
             lblUsername.Font = new Font("Segoe UI", 9F);
             lblUsername.ForeColor = Color.WhiteSmoke;
-            lblUsername.Location = new Point(-132, -135);
+            lblUsername.Location = new Point(179, 64);
             lblUsername.Name = "lblUsername";
             lblUsername.Size = new Size(142, 20);
             lblUsername.TabIndex = 1;
@@ -141,7 +141,7 @@
             txtUsername.BorderStyle = BorderStyle.FixedSingle;
             txtUsername.Font = new Font("Segoe UI", 9F);
             txtUsername.ForeColor = Color.WhiteSmoke;
-            txtUsername.Location = new Point(-132, -112);
+            txtUsername.Location = new Point(179, 87);
             txtUsername.Name = "txtUsername";
             txtUsername.Size = new Size(394, 27);
             txtUsername.TabIndex = 2;
@@ -152,7 +152,7 @@
             lblPassword.AutoSize = true;
             lblPassword.Font = new Font("Segoe UI", 9F);
             lblPassword.ForeColor = Color.WhiteSmoke;
-            lblPassword.Location = new Point(-132, -85);
+            lblPassword.Location = new Point(179, 114);
             lblPassword.Name = "lblPassword";
             lblPassword.Size = new Size(50, 20);
             lblPassword.TabIndex = 3;
@@ -165,7 +165,7 @@
             txtPassword.BorderStyle = BorderStyle.FixedSingle;
             txtPassword.Font = new Font("Segoe UI", 9F);
             txtPassword.ForeColor = Color.WhiteSmoke;
-            txtPassword.Location = new Point(-132, -62);
+            txtPassword.Location = new Point(179, 137);
             txtPassword.Name = "txtPassword";
             txtPassword.PasswordChar = '●';
             txtPassword.Size = new Size(394, 27);
@@ -177,7 +177,7 @@
             lblConfirmPassword.AutoSize = true;
             lblConfirmPassword.Font = new Font("Segoe UI", 9F);
             lblConfirmPassword.ForeColor = Color.WhiteSmoke;
-            lblConfirmPassword.Location = new Point(-132, -35);
+            lblConfirmPassword.Location = new Point(179, 164);
             lblConfirmPassword.Name = "lblConfirmPassword";
             lblConfirmPassword.Size = new Size(116, 20);
             lblConfirmPassword.TabIndex = 5;
@@ -190,7 +190,7 @@
             txtConfirmPassword.BorderStyle = BorderStyle.FixedSingle;
             txtConfirmPassword.Font = new Font("Segoe UI", 9F);
             txtConfirmPassword.ForeColor = Color.WhiteSmoke;
-            txtConfirmPassword.Location = new Point(-132, -12);
+            txtConfirmPassword.Location = new Point(179, 187);
             txtConfirmPassword.Name = "txtConfirmPassword";
             txtConfirmPassword.PasswordChar = '●';
             txtConfirmPassword.Size = new Size(394, 27);
@@ -202,7 +202,7 @@
             lblEmail.AutoSize = true;
             lblEmail.Font = new Font("Segoe UI", 9F);
             lblEmail.ForeColor = Color.WhiteSmoke;
-            lblEmail.Location = new Point(-132, 15);
+            lblEmail.Location = new Point(179, 214);
             lblEmail.Name = "lblEmail";
             lblEmail.Size = new Size(49, 20);
             lblEmail.TabIndex = 7;
@@ -215,7 +215,7 @@
             txtEmail.BorderStyle = BorderStyle.FixedSingle;
             txtEmail.Font = new Font("Segoe UI", 9F);
             txtEmail.ForeColor = Color.WhiteSmoke;
-            txtEmail.Location = new Point(-132, 38);
+            txtEmail.Location = new Point(179, 237);
             txtEmail.Name = "txtEmail";
             txtEmail.Size = new Size(394, 27);
             txtEmail.TabIndex = 8;
@@ -226,7 +226,7 @@
             lblFirstName.AutoSize = true;
             lblFirstName.Font = new Font("Segoe UI", 9F);
             lblFirstName.ForeColor = Color.WhiteSmoke;
-            lblFirstName.Location = new Point(-132, 65);
+            lblFirstName.Location = new Point(179, 264);
             lblFirstName.Name = "lblFirstName";
             lblFirstName.Size = new Size(41, 20);
             lblFirstName.TabIndex = 9;
@@ -239,7 +239,7 @@
             txtFirstName.BorderStyle = BorderStyle.FixedSingle;
             txtFirstName.Font = new Font("Segoe UI", 9F);
             txtFirstName.ForeColor = Color.WhiteSmoke;
-            txtFirstName.Location = new Point(-132, 88);
+            txtFirstName.Location = new Point(179, 287);
             txtFirstName.Name = "txtFirstName";
             txtFirstName.Size = new Size(394, 27);
             txtFirstName.TabIndex = 10;
@@ -250,7 +250,7 @@
             lblLastName.AutoSize = true;
             lblLastName.Font = new Font("Segoe UI", 9F);
             lblLastName.ForeColor = Color.WhiteSmoke;
-            lblLastName.Location = new Point(-132, 115);
+            lblLastName.Location = new Point(179, 314);
             lblLastName.Name = "lblLastName";
             lblLastName.Size = new Size(75, 20);
             lblLastName.TabIndex = 11;
@@ -263,7 +263,7 @@
             txtLastName.BorderStyle = BorderStyle.FixedSingle;
             txtLastName.Font = new Font("Segoe UI", 9F);
             txtLastName.ForeColor = Color.WhiteSmoke;
-            txtLastName.Location = new Point(-132, 138);
+            txtLastName.Location = new Point(179, 337);
             txtLastName.Name = "txtLastName";
             txtLastName.Size = new Size(394, 27);
             txtLastName.TabIndex = 12;
@@ -274,7 +274,7 @@
             lblBirthDate.AutoSize = true;
             lblBirthDate.Font = new Font("Segoe UI", 9F);
             lblBirthDate.ForeColor = Color.WhiteSmoke;
-            lblBirthDate.Location = new Point(-132, 165);
+            lblBirthDate.Location = new Point(179, 364);
             lblBirthDate.Name = "lblBirthDate";
             lblBirthDate.Size = new Size(114, 20);
             lblBirthDate.TabIndex = 13;
@@ -290,7 +290,7 @@
             datePickerBirthDate.CalendarTitleForeColor = Color.WhiteSmoke;
             datePickerBirthDate.Font = new Font("Segoe UI", 9F);
             datePickerBirthDate.Format = DateTimePickerFormat.Short;
-            datePickerBirthDate.Location = new Point(-132, 188);
+            datePickerBirthDate.Location = new Point(179, 387);
             datePickerBirthDate.Name = "datePickerBirthDate";
             datePickerBirthDate.Size = new Size(394, 27);
             datePickerBirthDate.TabIndex = 14;
@@ -300,7 +300,7 @@
             lblRegisterMessage.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lblRegisterMessage.Font = new Font("Segoe UI", 9F);
             lblRegisterMessage.ForeColor = Color.Tomato;
-            lblRegisterMessage.Location = new Point(-132, 217);
+            lblRegisterMessage.Location = new Point(179, 416);
             lblRegisterMessage.Name = "lblRegisterMessage";
             lblRegisterMessage.Size = new Size(394, 20);
             lblRegisterMessage.TabIndex = 17;
@@ -315,12 +315,13 @@
             btnRegister.FlatStyle = FlatStyle.Flat;
             btnRegister.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             btnRegister.ForeColor = Color.White;
-            btnRegister.Location = new Point(-35, 243);
+            btnRegister.Location = new Point(276, 442);
             btnRegister.Name = "btnRegister";
             btnRegister.Size = new Size(200, 39);
             btnRegister.TabIndex = 15;
             btnRegister.Text = "Zarejestruj się";
             btnRegister.UseVisualStyleBackColor = false;
+            btnRegister.Click += btnRegister_Click_1;
             // 
             // lblLoginLink
             // 
@@ -329,9 +330,9 @@
             lblLoginLink.Dock = DockStyle.Fill;
             lblLoginLink.Font = new Font("Segoe UI", 9.75F, FontStyle.Underline);
             lblLoginLink.ForeColor = Color.FromArgb(135, 206, 250);
-            lblLoginLink.Location = new Point(3, 300);
+            lblLoginLink.Location = new Point(3, 499);
             lblLoginLink.Name = "lblLoginLink";
-            lblLoginLink.Size = new Size(124, 30);
+            lblLoginLink.Size = new Size(747, 30);
             lblLoginLink.TabIndex = 16;
             lblLoginLink.Text = "Masz już konto? Zaloguj się";
             lblLoginLink.TextAlign = ContentAlignment.MiddleCenter;
@@ -345,6 +346,7 @@
             Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 238);
             Name = "RegisterView";
             Padding = new Padding(10);
+            Size = new Size(773, 548);
             tableLayoutPanelRegister.ResumeLayout(false);
             tableLayoutPanelRegister.PerformLayout();
             ResumeLayout(false);
