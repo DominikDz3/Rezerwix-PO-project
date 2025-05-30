@@ -54,7 +54,6 @@ namespace Rezerwix_project.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("EndDate")
-                        .HasMaxLength(100)
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Location")
@@ -63,7 +62,6 @@ namespace Rezerwix_project.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("StartDate")
-                        .HasMaxLength(100)
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Title")

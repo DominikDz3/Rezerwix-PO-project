@@ -2,20 +2,23 @@
 using Rezerwix.Models;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace Rezerwix_project.Forms
 {
     public partial class EventDetailsView : UserControl
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly MainForm _mainForm;
+
         private Event _currentEvent;
         private EventDetail _currentEventDetail;
+
         public event EventHandler RequestGoBack;
 
-        public EventDetailsView(AppDbContext dbContext, MainForm mainForm)
+        public EventDetailsView(IDbContextFactory<AppDbContext> dbContextFactory, MainForm mainForm)
         {
             InitializeComponent();
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
             _mainForm = mainForm ?? throw new ArgumentNullException(nameof(mainForm));
 
             if (this.numTickets != null)
@@ -39,12 +42,15 @@ namespace Rezerwix_project.Forms
 
             try
             {
-                _currentEvent = await _dbContext.Events
-                    .AsNoTracking()
-                    .Include(e => e.EventCategories)
-                        .ThenInclude(ec => ec.Category)
-                    .Include(e => e.EventDetails)
-                    .FirstOrDefaultAsync(e => e.EventId == eventId);
+                using (var dbContext = _dbContextFactory.CreateDbContext())
+                {
+                    _currentEvent = await dbContext.Events
+                        .AsNoTracking()
+                        .Include(e => e.EventCategories)
+                            .ThenInclude(ec => ec.Category)
+                        .Include(e => e.EventDetails)
+                        .FirstOrDefaultAsync(e => e.EventId == eventId);
+                }
 
                 if (_currentEvent == null)
                 {
@@ -140,11 +146,12 @@ namespace Rezerwix_project.Forms
                 return;
             }
 
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            using (var dbContext = _dbContextFactory.CreateDbContext())
+            using (var transaction = await dbContext.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var eventDetailToUpdate = await _dbContext.EventDetails.FindAsync(_currentEventDetail.EventDetailId);
+                    var eventDetailToUpdate = await dbContext.EventDetails.FindAsync(_currentEventDetail.EventDetailId);
                     if (eventDetailToUpdate == null)
                     {
                         await transaction.RollbackAsync();
@@ -159,7 +166,9 @@ namespace Rezerwix_project.Forms
                         await LoadEventDetailsAsync(_currentEvent.EventId);
                         return;
                     }
+
                     eventDetailToUpdate.AvailableSeats -= ticketsToReserve;
+
                     var reservation = new Reservation
                     {
                         ReservationDate = DateTime.UtcNow,
@@ -167,8 +176,8 @@ namespace Rezerwix_project.Forms
                         UserId = _mainForm.CurrentUser.UserId,
                         EventDetailId = _currentEventDetail.EventDetailId
                     };
-                    _dbContext.Reservations.Add(reservation);
-                    await _dbContext.SaveChangesAsync();
+                    dbContext.Reservations.Add(reservation);
+                    await dbContext.SaveChangesAsync();
                     await transaction.CommitAsync();
                     MessageBox.Show($"Pomyślnie zarezerwowano {ticketsToReserve} bilet(ów) na wydarzenie: {_currentEvent.Title}!", "Rezerwacja udana", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     await LoadEventDetailsAsync(_currentEvent.EventId);

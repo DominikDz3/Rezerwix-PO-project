@@ -7,26 +7,25 @@ namespace Rezerwix_project.Forms
 {
     public partial class MyProfileView : UserControl
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly MainForm _mainForm;
         private User _currentUserData;
 
-        public MyProfileView(AppDbContext dbContext, MainForm mainForm)
+        public MyProfileView(IDbContextFactory<AppDbContext> dbContextFactory, MainForm mainForm)
         {
             InitializeComponent();
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
             _mainForm = mainForm ?? throw new ArgumentNullException(nameof(mainForm));
 
             if (!this.DesignMode)
             {
-                LoadUserProfile();
+                _ = LoadUserProfileAsync();
             }
 
             if (btnSaveChanges != null) btnSaveChanges.Click += BtnSaveChanges_Click;
             if (btnChangePassword != null) btnChangePassword.Click += BtnChangePassword_Click;
         }
-
-        private void LoadUserProfile()
+        private async Task LoadUserProfileAsync()
         {
             if (_mainForm.CurrentUser == null)
             {
@@ -34,19 +33,36 @@ namespace Rezerwix_project.Forms
                 return;
             }
 
-            _currentUserData = _dbContext.Users.Find(_mainForm.CurrentUser.UserId);
-
-            if (_currentUserData == null)
+            try
             {
-                MessageBox.Show("Błąd: Nie można załadować danych użytkownika.", "Błąd profilu", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+                using (var dbContext = _dbContextFactory.CreateDbContext())
+                {
+                    _currentUserData = await dbContext.Users.FindAsync(_mainForm.CurrentUser.UserId);
+                }
 
-            if (txtUsername != null) txtUsername.Text = _currentUserData.Username;
-            if (txtFirstName != null) txtFirstName.Text = _currentUserData.FirstName;
-            if (txtLastName != null) txtLastName.Text = _currentUserData.LastName;
-            if (txtEmail != null) txtEmail.Text = _currentUserData.Email;
-            if (dtpDateOfBirth != null) dtpDateOfBirth.Value = _currentUserData.DateOfBirth.ToLocalTime(); // Pamiętaj o konwersji z UTC jeśli tak przechowujesz
+                if (_currentUserData == null)
+                {
+                    MessageBox.Show("Błąd: Nie można załadować danych użytkownika.", "Błąd profilu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (txtUsername != null) txtUsername.Text = _currentUserData.Username;
+                if (txtFirstName != null) txtFirstName.Text = _currentUserData.FirstName;
+                if (txtLastName != null) txtLastName.Text = _currentUserData.LastName;
+                if (txtEmail != null) txtEmail.Text = _currentUserData.Email;
+                if (dtpDateOfBirth != null && _currentUserData.DateOfBirth.Year > dtpDateOfBirth.MinDate.Year && _currentUserData.DateOfBirth < dtpDateOfBirth.MaxDate)
+                {
+                    dtpDateOfBirth.Value = _currentUserData.DateOfBirth.ToLocalTime();
+                }
+                else if (dtpDateOfBirth != null)
+                {
+                    dtpDateOfBirth.Value = new DateTime(Math.Max(dtpDateOfBirth.MinDate.Year, Math.Min(DateTime.Now.Year - 18, dtpDateOfBirth.MaxDate.Year - 1)), DateTime.Now.Month, DateTime.Now.Day);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Błąd podczas ładowania profilu: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async void BtnSaveChanges_Click(object sender, EventArgs e)
@@ -69,27 +85,35 @@ namespace Rezerwix_project.Forms
                 return;
             }
 
-            if (_dbContext.Users.Any(u => u.Email == _currentUserData.Email && u.UserId != _currentUserData.UserId))
-            {
-                ShowMessage("Ten adres email jest już używany przez innego użytkownika.", false);
-                return;
-            }
-
             try
             {
-                _dbContext.Users.Update(_currentUserData);
-                await _dbContext.SaveChangesAsync();
-                _mainForm.CurrentUser.FirstName = _currentUserData.FirstName;
-                _mainForm.CurrentUser.LastName = _currentUserData.LastName;
-                _mainForm.CurrentUser.Email = _currentUserData.Email;
-                _mainForm.CurrentUser.DateOfBirth = _currentUserData.DateOfBirth;
+                using (var dbContext = _dbContextFactory.CreateDbContext())
+                {
+                    if (await dbContext.Users.AnyAsync(u => u.Email == _currentUserData.Email && u.UserId != _currentUserData.UserId))
+                    {
+                        ShowMessage("Ten adres email jest już używany przez innego użytkownika.", false);
+                        return;
+                    }
+
+                    dbContext.Users.Update(_currentUserData);
+                    await dbContext.SaveChangesAsync();
+                }
+
+                var userInMainForm = _mainForm.CurrentUser;
+                if (userInMainForm != null && userInMainForm.UserId == _currentUserData.UserId)
+                {
+                    userInMainForm.FirstName = _currentUserData.FirstName;
+                    userInMainForm.LastName = _currentUserData.LastName;
+                    userInMainForm.Email = _currentUserData.Email;
+                    userInMainForm.DateOfBirth = _currentUserData.DateOfBirth;
+                }
 
                 ShowMessage("Dane zostały pomyślnie zaktualizowane.", true);
             }
             catch (DbUpdateConcurrencyException)
             {
                 ShowMessage("Wystąpił konflikt współbieżności. Spróbuj ponownie.", false);
-                LoadUserProfile();
+                await LoadUserProfileAsync();
             }
             catch (Exception ex)
             {
@@ -131,17 +155,31 @@ namespace Rezerwix_project.Forms
 
             try
             {
-                var (newHash, newSalt) = AppDbContext.PasswordHasher.HashPassword(newPassword);
-                _currentUserData.PasswordHash = newHash;
-                _currentUserData.Salt = newSalt;
+                using (var dbContext = _dbContextFactory.CreateDbContext())
+                {
+                    var (newHash, newSalt) = AppDbContext.PasswordHasher.HashPassword(newPassword);
 
-                _dbContext.Users.Update(_currentUserData);
-                await _dbContext.SaveChangesAsync();
+                    var userToUpdate = await dbContext.Users.FindAsync(_currentUserData.UserId);
+                    if (userToUpdate != null)
+                    {
+                        userToUpdate.PasswordHash = newHash;
+                        userToUpdate.Salt = newSalt;
+                        _currentUserData.PasswordHash = newHash;
+                        _currentUserData.Salt = newSalt;
 
-                ShowMessage("Hasło zostało pomyślnie zmienione.", true);
-                txtCurrentPassword.Clear();
-                txtNewPassword.Clear();
-                txtConfirmNewPassword.Clear();
+                        dbContext.Users.Update(userToUpdate);
+                        await dbContext.SaveChangesAsync();
+
+                        ShowMessage("Hasło zostało pomyślnie zmienione.", true);
+                        txtCurrentPassword.Clear();
+                        txtNewPassword.Clear();
+                        txtConfirmNewPassword.Clear();
+                    }
+                    else
+                    {
+                        ShowMessage("Nie znaleziono użytkownika do aktualizacji hasła.", false);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -159,7 +197,10 @@ namespace Rezerwix_project.Forms
             var timer = new System.Windows.Forms.Timer { Interval = 5000 };
             timer.Tick += (s, e) =>
             {
-                lblProfileMessage.Visible = false;
+                if (lblProfileMessage != null && !lblProfileMessage.IsDisposed && lblProfileMessage.IsHandleCreated)
+                {
+                    lblProfileMessage.Visible = false;
+                }
                 timer.Stop();
                 timer.Dispose();
             };

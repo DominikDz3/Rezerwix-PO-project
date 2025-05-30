@@ -1,32 +1,42 @@
 ﻿using Rezerwix.Data;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace Rezerwix_project.Forms
 {
     public partial class DashboardView : UserControl
     {
         private readonly MainForm _mainForm;
-        private readonly AppDbContext _dbContext;
+        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly IServiceProvider _serviceProvider;
         private UserControl _currentContentPanelControl = null;
 
-        public DashboardView(MainForm mainForm, AppDbContext dbContext, IServiceProvider serviceProvider)
+        public DashboardView(MainForm mainForm, IDbContextFactory<AppDbContext> dbContextFactory, IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _mainForm = mainForm ?? throw new ArgumentNullException(nameof(mainForm));
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
             ConfigureDashboardControls();
 
             if (!this.DesignMode)
             {
-                ShowWelcomeMessageInContentPanel();
+                if (_mainForm.CurrentUser?.Role == "admin")
+                {
+                    BtnAddEditEvent_Admin_Click(this, EventArgs.Empty);
+                }
+                else
+                {
+                    ShowUpcomingEventsView();
+                }
             }
         }
 
         private void ConfigureDashboardControls()
         {
+            bool isAdmin = _mainForm.CurrentUser?.Role == "admin";
+
             if (this.lblContentWelcome != null)
             {
                 if (_mainForm.CurrentUser != null)
@@ -39,34 +49,43 @@ namespace Rezerwix_project.Forms
                 }
             }
 
-            if (this.btnUpcomingEvents != null)
+            if (btnUpcomingEvents != null)
             {
-                this.btnUpcomingEvents.Click -= BtnUpcomingEvents_Click;
-                this.btnUpcomingEvents.Click += BtnUpcomingEvents_Click;
+                btnUpcomingEvents.Visible = !isAdmin;
+                btnUpcomingEvents.Click -= BtnUpcomingEvents_Click;
+                if (!isAdmin) btnUpcomingEvents.Click += BtnUpcomingEvents_Click;
             }
-            if (this.btnMyTickets != null)
+            if (btnMyTickets != null)
             {
-                this.btnMyTickets.Click -= BtnMyTickets_Click;
-                this.btnMyTickets.Click += BtnMyTickets_Click;
+                btnMyTickets.Visible = !isAdmin;
+                btnMyTickets.Click -= BtnMyTickets_Click;
+                if (!isAdmin) btnMyTickets.Click += BtnMyTickets_Click;
             }
-            if (this.btnMyProfile != null)
+            if (btnMyProfile != null)
             {
-                this.btnMyProfile.Click -= BtnMyProfile_Click;
-                this.btnMyProfile.Click += BtnMyProfile_Click;
+                btnMyProfile.Visible = !isAdmin;
+                btnMyProfile.Click -= BtnMyProfile_Click;
+                if (!isAdmin) btnMyProfile.Click += BtnMyProfile_Click;
             }
-            if (this.btnLogout != null)
+
+            if (btnManageUsers_Admin != null)
             {
-                this.btnLogout.Click -= BtnLogout_Click;
-                this.btnLogout.Click += BtnLogout_Click;
+                btnManageUsers_Admin.Visible = isAdmin;
+                btnManageUsers_Admin.Click -= BtnManageUsers_Admin_Click;
+                if (isAdmin) btnManageUsers_Admin.Click += BtnManageUsers_Admin_Click;
             }
-            if (this.btnAdminPanel != null)
+
+            if (btnAddEditEvent_Admin != null)
             {
-                this.btnAdminPanel.Visible = _mainForm.CurrentUser?.Role == "admin";
-                if (this.btnAdminPanel.Visible)
-                {
-                    this.btnAdminPanel.Click -= BtnAdminPanel_Click;
-                    this.btnAdminPanel.Click += BtnAdminPanel_Click;
-                }
+                btnAddEditEvent_Admin.Visible = isAdmin;
+                btnAddEditEvent_Admin.Click -= BtnAddEditEvent_Admin_Click;
+                if (isAdmin) btnAddEditEvent_Admin.Click += BtnAddEditEvent_Admin_Click;
+            }
+
+            if (btnLogout != null)
+            {
+                btnLogout.Click -= BtnLogout_Click;
+                btnLogout.Click += BtnLogout_Click;
             }
         }
 
@@ -84,7 +103,6 @@ namespace Rezerwix_project.Forms
                 {
                     oldDetailsView.RequestGoBack -= EventDetailsView_RequestGoBack;
                 }
-
                 this.panelContent.Controls.Remove(_currentContentPanelControl);
                 _currentContentPanelControl.Dispose();
                 _currentContentPanelControl = null;
@@ -96,7 +114,6 @@ namespace Rezerwix_project.Forms
             if (viewToLoad != null)
             {
                 _currentContentPanelControl = viewToLoad;
-
                 if (_currentContentPanelControl is UpcomingEventsView newUpcomingView)
                 {
                     newUpcomingView.RequestEventDetailsView += UpcomingEventsView_RequestEventDetailsView;
@@ -105,7 +122,6 @@ namespace Rezerwix_project.Forms
                 {
                     newDetailsView.RequestGoBack += EventDetailsView_RequestGoBack;
                 }
-
                 _currentContentPanelControl.Dock = DockStyle.Fill;
                 this.panelContent.Controls.Add(_currentContentPanelControl);
             }
@@ -115,11 +131,6 @@ namespace Rezerwix_project.Forms
                 this.lblContentPlaceholder.Visible = true;
                 this.lblContentPlaceholder.Text = "Wybierz opcję z menu po lewej stronie.";
             }
-        }
-
-        private void ShowWelcomeMessageInContentPanel()
-        {
-            LoadViewIntoContentPanel(null);
         }
 
         private void ShowUpcomingEventsView()
@@ -135,15 +146,11 @@ namespace Rezerwix_project.Forms
             }
         }
 
-        // Handler dla zdarzenia z UpcomingEventsView
         private async void UpcomingEventsView_RequestEventDetailsView(object sender, int eventId)
         {
             try
             {
-                var eventDetailsView = new EventDetailsView(
-                    _dbContext,
-                    _mainForm
-                );
+                var eventDetailsView = _serviceProvider.GetRequiredService<EventDetailsView>();
                 await eventDetailsView.LoadEventDetailsAsync(eventId);
                 LoadViewIntoContentPanel(eventDetailsView);
             }
@@ -152,16 +159,20 @@ namespace Rezerwix_project.Forms
                 MessageBox.Show($"Błąd ładowania szczegółów wydarzenia: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void EventDetailsView_RequestGoBack(object sender, EventArgs e)
         {
-            ShowUpcomingEventsView();
+            if (_mainForm.CurrentUser?.Role == "admin")
+            {
+                BtnAddEditEvent_Admin_Click(sender, e);
+            }
+            else
+            {
+                ShowUpcomingEventsView();
+            }
         }
 
-        private void BtnUpcomingEvents_Click(object sender, EventArgs e)
-        {
-            ShowUpcomingEventsView();
-        }
-
+        private void BtnUpcomingEvents_Click(object sender, EventArgs e) { ShowUpcomingEventsView(); }
         private void BtnMyTickets_Click(object sender, EventArgs e)
         {
             try
@@ -174,7 +185,6 @@ namespace Rezerwix_project.Forms
                 MessageBox.Show($"Błąd ładowania widoku 'Moje Bilety': {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void BtnMyProfile_Click(object sender, EventArgs e)
         {
             try
@@ -188,10 +198,30 @@ namespace Rezerwix_project.Forms
             }
         }
 
-        private void BtnAdminPanel_Click(object sender, EventArgs e)
+        private void BtnManageUsers_Admin_Click(object sender, EventArgs e)
         {
-            var placeholderView = new Label { Text = "Widok: Panel Administratora (do zaimplementowania)", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 14F) };
-            LoadViewIntoContentPanel(new UserControl { Controls = { placeholderView }, Dock = DockStyle.Fill });
+            try
+            {
+                var manageUsersView = _serviceProvider.GetRequiredService<ManageUsersView>();
+                LoadViewIntoContentPanel(manageUsersView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Błąd ładowania widoku zarządzania użytkownikami: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnAddEditEvent_Admin_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var manageEventsView = _serviceProvider.GetRequiredService<ManageEventsView>();
+                LoadViewIntoContentPanel(manageEventsView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Błąd ładowania widoku zarządzania wydarzeniami: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void BtnLogout_Click(object sender, EventArgs e)

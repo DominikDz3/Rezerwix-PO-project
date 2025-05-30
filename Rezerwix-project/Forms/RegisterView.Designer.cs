@@ -321,7 +321,7 @@
             btnRegister.TabIndex = 15;
             btnRegister.Text = "Zarejestruj się";
             btnRegister.UseVisualStyleBackColor = false;
-            btnRegister.Click += btnRegister_Click_1;
+            btnRegister.Click += btnRegister_Click;
             // 
             // lblLoginLink
             // 

@@ -1,20 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Rezerwix.Data;
+using Rezerwix.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Rezerwix_project.Forms
 {
     public partial class LoginView : UserControl
     {
-        private readonly AppDbContext _db;
+        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly MainForm _mainForm;
         private readonly IServiceProvider _serviceProvider;
         private Label _dynamicLblMessage;
 
-        public LoginView(AppDbContext db, MainForm mainForm, IServiceProvider serviceProvider)
+        public LoginView(IDbContextFactory<AppDbContext> dbContextFactory, MainForm mainForm, IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _db = db ?? throw new ArgumentNullException(nameof(db));
+            _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
             _mainForm = mainForm ?? throw new ArgumentNullException(nameof(mainForm));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
@@ -60,7 +61,7 @@ namespace Rezerwix_project.Forms
                     this.Controls.Add(_dynamicLblMessage);
                 }
             }
-            _dynamicLblMessage.Visible = false;
+            if (_dynamicLblMessage != null) _dynamicLblMessage.Visible = false;
         }
 
         private async void btnLogin_Click(object sender, EventArgs e)
@@ -91,7 +92,11 @@ namespace Rezerwix_project.Forms
 
             try
             {
-                var user = await _db.Users.FirstOrDefaultAsync(u => u.Username == username);
+                User user;
+                using (var dbContext = _dbContextFactory.CreateDbContext())
+                {
+                    user = await dbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
+                }
 
                 if (user != null && AppDbContext.PasswordHasher.VerifyPassword(password, user.PasswordHash, user.Salt))
                 {

@@ -1,5 +1,4 @@
-﻿// MyTicketsView.Designer.cs
-namespace Rezerwix_project.Forms
+﻿namespace Rezerwix_project.Forms
 {
     partial class MyTicketsView
     {

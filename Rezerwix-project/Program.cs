@@ -9,13 +9,26 @@ namespace Rezerwix
 {
     public static class Program
     {
+        private static readonly string logFilePath = Path.Combine(AppContext.BaseDirectory, "app_error_log.txt");
+
+        public static void LogErrorToFile(string message)
+        {
+            try
+            {
+                using (StreamWriter sw = File.AppendText(logFilePath))
+                {
+                    sw.WriteLine($"{DateTime.Now}: ERROR: {message}");
+                }
+            }
+            catch {}
+        }
+
         [STAThread]
         static void Main()
-        { 
+        {
             try
             {
                 ApplicationConfiguration.Initialize();
-
                 var host = CreateHostBuilder().Build();
 
                 using (var scope = host.Services.CreateScope())
@@ -23,9 +36,12 @@ namespace Rezerwix
                     var services = scope.ServiceProvider;
                     try
                     {
-                        var context = services.GetRequiredService<AppDbContext>();
-                        context.Database.Migrate();
-                        context.SeedData();
+                        var contextFactory = services.GetRequiredService<IDbContextFactory<AppDbContext>>();
+                        using (var context = contextFactory.CreateDbContext())
+                        {
+                            context.Database.Migrate();
+                            context.SeedData();
+                        }
                     }
                     catch (Exception exDb)
                     {
@@ -59,7 +75,7 @@ namespace Rezerwix
                 {
                     var connectionString = context.Configuration.GetConnectionString("DefaultConnection");
 
-                    services.AddDbContext<AppDbContext>(options =>
+                    services.AddDbContextFactory<AppDbContext>(options =>
                         options.UseNpgsql(connectionString));
 
                     services.AddSingleton<MainForm>();
@@ -70,6 +86,11 @@ namespace Rezerwix
                     services.AddTransient<EventDetailsView>();
                     services.AddTransient<MyTicketsView>();
                     services.AddTransient<MyProfileView>();
+                    services.AddTransient<ManageEventsView>();
+                    services.AddTransient<AddEditEventForm>();
+                    services.AddTransient<ManageUsersView>();
+
+
                 });
     }
 }

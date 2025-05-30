@@ -148,7 +148,7 @@
             this.txtUsername.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.txtUsername.Location = new System.Drawing.Point(153, 3);
             this.txtUsername.Name = "txtUsername";
-            this.txtUsername.ReadOnly = true; // Nazwa użytkownika zazwyczaj nieedytowalna
+            this.txtUsername.ReadOnly = true;
             this.txtUsername.Size = new System.Drawing.Size(582, 23);
             this.txtUsername.TabIndex = 0;
             // 
@@ -245,10 +245,10 @@
             this.gbChangePassword.Controls.Add(this.tableLayoutPanelPassword);
             this.gbChangePassword.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbChangePassword.Font = new System.Drawing.Font("Segoe UI", 9.75F);
-            this.gbChangePassword.Location = new System.Drawing.Point(3, 279); // Po lblProfileMessage
+            this.gbChangePassword.Location = new System.Drawing.Point(3, 279);
             this.gbChangePassword.Name = "gbChangePassword";
             this.gbChangePassword.Padding = new System.Windows.Forms.Padding(10);
-            this.gbChangePassword.Size = new System.Drawing.Size(758, 204); // Dostosuj wysokość
+            this.gbChangePassword.Size = new System.Drawing.Size(758, 204);
             this.gbChangePassword.TabIndex = 1;
             this.gbChangePassword.TabStop = false;
             this.gbChangePassword.Text = "Zmiana Hasła";
@@ -353,7 +353,7 @@
             this.lblProfileMessage.AutoSize = true;
             this.lblProfileMessage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblProfileMessage.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold);
-            this.lblProfileMessage.ForeColor = System.Drawing.Color.Green; // Domyślnie na sukces
+            this.lblProfileMessage.ForeColor = System.Drawing.Color.Green;
             this.lblProfileMessage.Location = new System.Drawing.Point(3, 246);
             this.lblProfileMessage.Name = "lblProfileMessage";
             this.lblProfileMessage.Size = new System.Drawing.Size(758, 30);

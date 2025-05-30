@@ -1,5 +1,3 @@
-using Rezerwix.Models;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Rezerwix.Models
@@ -8,35 +6,38 @@ namespace Rezerwix.Models
     {
         public int EventId { get; set; }
 
-        [Required]
-        [MaxLength(100)]
+        [Required(ErrorMessage = "Tytu³ wydarzenia jest wymagany.")]
+        [MaxLength(100, ErrorMessage = "Tytu³ mo¿e mieæ maksymalnie 100 znaków.")]
         public string Title { get; set; }
 
-        [Required]
-        [MaxLength(500)]
+        [Required(ErrorMessage = "Opis wydarzenia jest wymagany.")]
+        [MaxLength(500, ErrorMessage = "Opis mo¿e mieæ maksymalnie 500 znaków.")]
         public string Description { get; set; }
 
-        [Required]
-        [MaxLength(100)]
+        [Required(ErrorMessage = "Data rozpoczêcia jest wymagana.")]
         public DateTime StartDate { get; set; }
 
-        [Required]
-        [MaxLength(100)]
-        [CustomValidation(typeof(Event), "ValidateEndDate")]
+        [Required(ErrorMessage = "Data zakoñczenia jest wymagana.")]
+        [CustomValidation(typeof(Event), nameof(ValidateEndDate))]
         public DateTime EndDate { get; set; }
+
         public static ValidationResult ValidateEndDate(DateTime endDate, ValidationContext context)
         {
             var instance = context.ObjectInstance as Event;
-            return endDate > instance?.StartDate
+            if (instance == null)
+            {
+                return new ValidationResult("Nie mo¿na zweryfikowaæ daty zakoñczenia bez instancji obiektu.");
+            }
+            return endDate > instance.StartDate
                 ? ValidationResult.Success
-                : new ValidationResult("Data koñca musi byæ póŸniejsza ni¿ data rozpoczêcia");
+                : new ValidationResult("Data koñca musi byæ póŸniejsza ni¿ data rozpoczêcia.");
         }
 
-        [Required]
-        [MaxLength(100)]
+        [Required(ErrorMessage = "Lokalizacja jest wymagana.")]
+        [MaxLength(100, ErrorMessage = "Lokalizacja mo¿e mieæ maksymalnie 100 znaków.")]
         public string Location { get; set; }
 
-        public virtual ICollection<EventDetail> EventDetails { get; set; }
-        public ICollection<EventCategory> EventCategories { get; set; }
+        public virtual ICollection<EventDetail> EventDetails { get; set; } = new List<EventDetail>(); // Dobra praktyka: inicjalizuj kolekcje
+        public virtual ICollection<EventCategory> EventCategories { get; set; } = new List<EventCategory>(); // Dobra praktyka: inicjalizuj kolekcje
     }
 }

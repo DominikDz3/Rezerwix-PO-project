@@ -5,38 +5,41 @@ namespace Rezerwix_project.Forms
 {
     public partial class UpcomingEventsView : UserControl
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly IServiceProvider _serviceProvider;
         private readonly MainForm _mainForm;
 
         public event EventHandler<int> RequestEventDetailsView;
 
-        public UpcomingEventsView(AppDbContext dbContext, IServiceProvider serviceProvider, MainForm mainForm)
+        public UpcomingEventsView(IDbContextFactory<AppDbContext> dbContextFactory, IServiceProvider serviceProvider, MainForm mainForm)
         {
             InitializeComponent();
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _mainForm = mainForm ?? throw new ArgumentNullException(nameof(mainForm));
 
             if (!this.DesignMode)
             {
-                ConfigureFilterControls();
+                ConfigureFilterControlsAsync();
                 LoadUpcomingEventsAsync();
             }
         }
 
-        private async void ConfigureFilterControls()
+        private async void ConfigureFilterControlsAsync()
         {
             if (cmbCategoryFilter != null)
             {
-                var categories = await _dbContext.Categories.OrderBy(c => c.Name).ToListAsync();
-                var displayCategories = new List<object> { new { Name = "Wszystkie Kategorie", Id = 0 } };
-                displayCategories.AddRange(categories.Select(c => new { Name = c.Name, Id = c.CategoryId }).ToList<object>());
+                using (var dbContext = _dbContextFactory.CreateDbContext())
+                {
+                    var categories = await dbContext.Categories.OrderBy(c => c.Name).ToListAsync();
+                    var displayCategories = new List<object> { new { Name = "Wszystkie Kategorie", Id = 0 } };
+                    displayCategories.AddRange(categories.Select(c => new { Name = c.Name, Id = c.CategoryId }).ToList<object>());
 
-                cmbCategoryFilter.DataSource = displayCategories;
-                cmbCategoryFilter.DisplayMember = "Name";
-                cmbCategoryFilter.ValueMember = "Id";
-                cmbCategoryFilter.SelectedIndex = 0;
+                    cmbCategoryFilter.DataSource = displayCategories;
+                    cmbCategoryFilter.DisplayMember = "Name";
+                    cmbCategoryFilter.ValueMember = "Id";
+                    cmbCategoryFilter.SelectedIndex = 0;
+                }
             }
 
             if (btnApplyFilters != null)
@@ -93,56 +96,52 @@ namespace Rezerwix_project.Forms
 
             try
             {
-                var query = _dbContext.Events
-                    .AsNoTracking()
-                    .Include(e => e.EventCategories)
-                        .ThenInclude(ec => ec.Category)
-                    .Where(e => e.EndDate >= DateTime.UtcNow);
-
-                if (!string.IsNullOrWhiteSpace(searchTerm))
+                using (var dbContext = _dbContextFactory.CreateDbContext())
                 {
-                    query = query.Where(e => e.Title.ToLower().Contains(searchTerm.ToLower()) ||
-                                             e.Location.ToLower().Contains(searchTerm.ToLower()));
-                }
+                    var query = dbContext.Events
+                        .AsNoTracking()
+                        .Include(e => e.EventCategories)
+                            .ThenInclude(ec => ec.Category)
+                        .Where(e => e.EndDate >= DateTime.UtcNow);
 
-                if (categoryId.HasValue && categoryId.Value != 0)
-                {
-                    query = query.Where(e => e.EventCategories.Any(ec => ec.CategoryId == categoryId.Value));
-                }
-
-                var upcomingEventsData = await query
-                    .OrderBy(e => e.StartDate)
-                    .Select(e => new EventCardViewModel
+                    if (!string.IsNullOrWhiteSpace(searchTerm))
                     {
-                        EventId = e.EventId,
-                        Title = e.Title,
-                        Location = e.Location,
-                        StartDate = e.StartDate,
-                        Categories = string.Join(", ", e.EventCategories.Select(ec => ec.Category.Name))
-                    })
-                    .Take(50)
-                    .ToListAsync();
+                        query = query.Where(e => e.Title.ToLower().Contains(searchTerm.ToLower()) ||
+                                                 e.Location.ToLower().Contains(searchTerm.ToLower()));
+                    }
 
-                if (!upcomingEventsData.Any())
-                {
-                    Label noEventsLabel = new Label
+                    if (categoryId.HasValue && categoryId.Value != 0)
                     {
-                        Text = "Brak wydarzeń spełniających kryteria.",
-                        AutoSize = true,
-                        Font = new Font("Segoe UI", 12F),
-                        ForeColor = Color.Gray,
-                        Margin = new Padding(10)
-                    };
-                    this.flowLayoutPanelEvents.Controls.Add(noEventsLabel);
-                    return;
-                }
+                        query = query.Where(e => e.EventCategories.Any(ec => ec.CategoryId == categoryId.Value));
+                    }
 
-                foreach (var eventData in upcomingEventsData)
-                {
-                    var card = new EventCardControl();
-                    card.SetEventData(eventData);
-                    card.DetailsClicked += EventCard_DetailsClicked;
-                    this.flowLayoutPanelEvents.Controls.Add(card);
+                    var upcomingEventsData = await query
+                        .OrderBy(e => e.StartDate)
+                        .Select(e => new EventCardViewModel
+                        {
+                            EventId = e.EventId,
+                            Title = e.Title,
+                            Location = e.Location,
+                            StartDate = e.StartDate,
+                            Categories = string.Join(", ", e.EventCategories.Select(ec => ec.Category.Name))
+                        })
+                        .Take(50)
+                        .ToListAsync();
+
+                    if (!upcomingEventsData.Any())
+                    {
+                        Label noEventsLabel = new Label { Text = "Brak wydarzeń spełniających kryteria.", AutoSize = true, Font = new Font("Segoe UI", 12F), ForeColor = Color.Gray, Margin = new Padding(10) };
+                        this.flowLayoutPanelEvents.Controls.Add(noEventsLabel);
+                        return;
+                    }
+
+                    foreach (var eventData in upcomingEventsData)
+                    {
+                        var card = new EventCardControl();
+                        card.SetEventData(eventData);
+                        card.DetailsClicked += EventCard_DetailsClicked;
+                        this.flowLayoutPanelEvents.Controls.Add(card);
+                    }
                 }
             }
             catch (Exception ex)

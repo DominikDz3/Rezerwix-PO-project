@@ -8,15 +8,15 @@ namespace Rezerwix_project.Forms
 {
     public partial class RegisterView : UserControl
     {
-        private readonly AppDbContext _db;
+        private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly MainForm _mainForm;
         private readonly IServiceProvider _serviceProvider;
         private Label _dynamicLblRegisterMessage;
 
-        public RegisterView(AppDbContext db, MainForm mainForm, IServiceProvider serviceProvider)
+        public RegisterView(IDbContextFactory<AppDbContext> dbContextFactory, MainForm mainForm, IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _db = db ?? throw new ArgumentNullException(nameof(db));
+            _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
             _mainForm = mainForm ?? throw new ArgumentNullException(nameof(mainForm));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
@@ -41,6 +41,11 @@ namespace Rezerwix_project.Forms
                 this.btnRegister.Click += btnRegister_Click;
             }
 
+            if (this.lblLoginLink != null)
+            {
+                this.lblLoginLink.Click -= lblLoginLink_Click;
+                this.lblLoginLink.Click += lblLoginLink_Click;
+            }
 
             _dynamicLblRegisterMessage = this.Controls.Find("lblRegisterMessage", true).FirstOrDefault() as Label;
             if (_dynamicLblRegisterMessage == null)
@@ -51,7 +56,7 @@ namespace Rezerwix_project.Forms
                     ForeColor = Color.Red,
                     AutoSize = true,
                     Visible = false,
-                    Location = new Point(50, 440) // Dostosuj pozycję, jeśli potrzebne
+                    Location = new Point(50, 440)
                 };
                 this.Controls.Add(_dynamicLblRegisterMessage);
             }
@@ -123,47 +128,50 @@ namespace Rezerwix_project.Forms
 
             try
             {
-                bool userExists = await _db.Users.AnyAsync(u => u.Username == username);
-                if (userExists)
+                using (var dbContext = _dbContextFactory.CreateDbContext())
                 {
-                    this._dynamicLblRegisterMessage.Text = "Użytkownik o tej nazwie już istnieje.";
-                    this._dynamicLblRegisterMessage.Visible = true;
-                    return;
+                    bool userExists = await dbContext.Users.AnyAsync(u => u.Username == username);
+                    if (userExists)
+                    {
+                        this._dynamicLblRegisterMessage.Text = "Użytkownik o tej nazwie już istnieje.";
+                        this._dynamicLblRegisterMessage.Visible = true;
+                        return;
+                    }
+                    bool emailExists = await dbContext.Users.AnyAsync(u => u.Email == email);
+                    if (emailExists)
+                    {
+                        this._dynamicLblRegisterMessage.Text = "Adres email jest już używany.";
+                        this._dynamicLblRegisterMessage.Visible = true;
+                        return;
+                    }
+
+                    var (hashedPassword, salt) = AppDbContext.PasswordHasher.HashPassword(password);
+                    var newUser = new User
+                    {
+                        Username = username,
+                        Email = email,
+                        PasswordHash = hashedPassword,
+                        Salt = salt,
+                        FirstName = firstName,
+                        LastName = lastName,
+                        DateOfBirth = DateTime.SpecifyKind(dateOfBirth, DateTimeKind.Utc),
+                        Role = "user"
+                    };
+
+                    var validationContext = new ValidationContext(newUser);
+                    var validationResults = new List<ValidationResult>();
+                    bool isValid = Validator.TryValidateObject(newUser, validationContext, validationResults, true);
+
+                    if (!isValid)
+                    {
+                        this._dynamicLblRegisterMessage.Text = string.Join(Environment.NewLine, validationResults.Select(r => r.ErrorMessage));
+                        this._dynamicLblRegisterMessage.Visible = true;
+                        return;
+                    }
+
+                    dbContext.Users.Add(newUser);
+                    await dbContext.SaveChangesAsync();
                 }
-                bool emailExists = await _db.Users.AnyAsync(u => u.Email == email);
-                if (emailExists)
-                {
-                    this._dynamicLblRegisterMessage.Text = "Adres email jest już używany.";
-                    this._dynamicLblRegisterMessage.Visible = true;
-                    return;
-                }
-
-                var (hashedPassword, salt) = AppDbContext.PasswordHasher.HashPassword(password);
-                var newUser = new User
-                {
-                    Username = username,
-                    Email = email,
-                    PasswordHash = hashedPassword,
-                    Salt = salt,
-                    FirstName = firstName,
-                    LastName = lastName,
-                    DateOfBirth = DateTime.SpecifyKind(dateOfBirth, DateTimeKind.Utc),
-                    Role = "user"
-                };
-
-                var validationContext = new ValidationContext(newUser);
-                var validationResults = new System.Collections.Generic.List<ValidationResult>();
-                bool isValid = Validator.TryValidateObject(newUser, validationContext, validationResults, true);
-
-                if (!isValid)
-                {
-                    this._dynamicLblRegisterMessage.Text = string.Join(Environment.NewLine, validationResults.Select(r => r.ErrorMessage));
-                    this._dynamicLblRegisterMessage.Visible = true;
-                    return;
-                }
-
-                _db.Users.Add(newUser);
-                await _db.SaveChangesAsync();
 
                 MessageBox.Show("Rejestracja zakończona pomyślnie! Możesz się teraz zalogować.", "Rejestracja udana", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -193,11 +201,6 @@ namespace Rezerwix_project.Forms
             {
                 MessageBox.Show($"Nie można załadować widoku logowania: {ex.Message}", "Błąd Nawigacji", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void btnRegister_Click_1(object sender, EventArgs e)
-        {
-
         }
     }
 }
