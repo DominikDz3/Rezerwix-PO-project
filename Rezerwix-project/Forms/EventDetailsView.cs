@@ -59,10 +59,10 @@ namespace Rezerwix_project.Forms
                 }
 
                 _currentEventDetail = _currentEvent.EventDetails
-                                        .Where(ed => ed.EventDate >= DateTime.UtcNow.Date || ed.EventDate.Date == _currentEvent.StartDate.Date) // Uwzględnij też dzisiejsze lub pierwszy termin
+                                        .Where(ed => ed.EventDate >= DateTime.Now) 
                                         .OrderBy(ed => ed.EventDate)
                                         .FirstOrDefault() ??
-                                      _currentEvent.EventDetails
+                                      _currentEvent.EventDetails 
                                         .OrderByDescending(ed => ed.EventDate)
                                         .FirstOrDefault();
 
@@ -85,14 +85,34 @@ namespace Rezerwix_project.Forms
             if (lblCategories != null) lblCategories.Text = $"Kategorie: {string.Join(", ", _currentEvent.EventCategories.Select(ec => ec.Category.Name))}";
             if (richTextBoxDescription != null) richTextBoxDescription.Text = _currentEvent.Description;
 
+            bool canReserveAnyTickets = false;
+
             if (_currentEventDetail != null)
             {
                 if (lblPricePerTicket != null) lblPricePerTicket.Text = $"Cena za bilet: {_currentEventDetail.PricePerTicket:C}";
-                if (lblAvailableSeats != null) lblAvailableSeats.Text = $"Dostępne miejsca: {_currentEventDetail.AvailableSeats}";
+
+                bool eventStarted = _currentEventDetail.EventDate < DateTime.Now;
+                canReserveAnyTickets = _currentEventDetail.AvailableSeats > 0 && !eventStarted;
+
+                if (lblAvailableSeats != null)
+                {
+                    if (eventStarted)
+                    {
+                        lblAvailableSeats.Text = "Dostępne miejsca: (Wydarzenie rozpoczęte/zakończone)";
+                    }
+                    else if (_currentEventDetail.AvailableSeats <= 0)
+                    {
+                        lblAvailableSeats.Text = "Dostępne miejsca: BRAK";
+                    }
+                    else
+                    {
+                        lblAvailableSeats.Text = $"Dostępne miejsca: {_currentEventDetail.AvailableSeats}";
+                    }
+                }
 
                 if (numTickets != null)
                 {
-                    if (_currentEventDetail.AvailableSeats > 0)
+                    if (canReserveAnyTickets)
                     {
                         numTickets.Minimum = 1;
                         numTickets.Maximum = _currentEventDetail.AvailableSeats;
@@ -105,13 +125,12 @@ namespace Rezerwix_project.Forms
                         numTickets.Maximum = 0;
                         numTickets.Value = 0;
                         numTickets.Enabled = false;
-                        if (lblAvailableSeats != null) lblAvailableSeats.Text = "Dostępne miejsca: BRAK";
                     }
                 }
-                if (btnReserve != null) btnReserve.Enabled = _currentEventDetail.AvailableSeats > 0;
+                if (btnReserve != null) btnReserve.Enabled = canReserveAnyTickets;
                 UpdateTotalPrice();
             }
-            else
+            else 
             {
                 if (lblPricePerTicket != null) lblPricePerTicket.Text = "Cena za bilet: N/A";
                 if (lblAvailableSeats != null) lblAvailableSeats.Text = "Dostępne miejsca: N/A";
@@ -151,6 +170,14 @@ namespace Rezerwix_project.Forms
                 MessageBox.Show("Nie można dokonać rezerwacji. Brak szczegółów wydarzenia.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
+            if (_currentEventDetail.EventDate < DateTime.Now)
+            {
+                MessageBox.Show("Nie można zarezerwować biletów. Wydarzenie już się rozpoczęło lub zakończyło.", "Rezerwacja niemożliwa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                await LoadEventDetailsAsync(_currentEvent.EventId);
+                return;
+            }
+
             int ticketsToReserve = (int)numTickets.Value;
             if (ticketsToReserve <= 0)
             {
@@ -171,6 +198,13 @@ namespace Rezerwix_project.Forms
                         await LoadEventDetailsAsync(_currentEvent.EventId);
                         return;
                     }
+                    if (eventDetailToUpdate.EventDate < DateTime.Now)
+                    {
+                        await transaction.RollbackAsync();
+                        MessageBox.Show("Nie można zarezerwować biletów. Wydarzenie właśnie się rozpoczęło lub zakończyło.", "Rezerwacja niemożliwa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        await LoadEventDetailsAsync(_currentEvent.EventId);
+                        return;
+                    }
                     if (eventDetailToUpdate.AvailableSeats < ticketsToReserve)
                     {
                         await transaction.RollbackAsync();
@@ -180,7 +214,6 @@ namespace Rezerwix_project.Forms
                     }
 
                     eventDetailToUpdate.AvailableSeats -= ticketsToReserve;
-
                     var reservation = new Reservation
                     {
                         ReservationDate = DateTime.UtcNow,
