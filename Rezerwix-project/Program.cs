@@ -1,28 +1,18 @@
+// Program.cs
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Rezerwix.Data;
 using Rezerwix_project.Forms;
+using System;
+using System.IO;
+using System.Windows.Forms;
 
 namespace Rezerwix
 {
     public static class Program
     {
-        private static readonly string logFilePath = Path.Combine(AppContext.BaseDirectory, "app_error_log.txt");
-
-        public static void LogErrorToFile(string message)
-        {
-            try
-            {
-                using (StreamWriter sw = File.AppendText(logFilePath))
-                {
-                    sw.WriteLine($"{DateTime.Now}: ERROR: {message}");
-                }
-            }
-            catch {}
-        }
-
         [STAThread]
         static void Main()
         {
@@ -71,12 +61,15 @@ namespace Rezerwix
                     config.SetBasePath(AppContext.BaseDirectory);
                     config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
                 })
-                .ConfigureServices((context, services) =>
+                .ConfigureServices((hostContext, services) =>
                 {
-                    var connectionString = context.Configuration.GetConnectionString("DefaultConnection");
+                    services.AddDbContextFactory<AppDbContext>((serviceProvider, options) =>
+                    {
+                        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+                        var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-                    services.AddDbContextFactory<AppDbContext>(options =>
-                        options.UseNpgsql(connectionString));
+                        options.UseNpgsql(connectionString);
+                    });
 
                     services.AddSingleton<MainForm>();
                     services.AddTransient<LoginView>();
@@ -89,8 +82,6 @@ namespace Rezerwix
                     services.AddTransient<ManageEventsView>();
                     services.AddTransient<AddEditEventForm>();
                     services.AddTransient<ManageUsersView>();
-
-
                 });
     }
 }

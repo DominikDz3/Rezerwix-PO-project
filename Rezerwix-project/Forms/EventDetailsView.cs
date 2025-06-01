@@ -2,7 +2,6 @@
 using Rezerwix.Models;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Rezerwix_project.Forms
 {
     public partial class EventDetailsView : UserControl
@@ -60,7 +59,7 @@ namespace Rezerwix_project.Forms
                 }
 
                 _currentEventDetail = _currentEvent.EventDetails
-                                        .Where(ed => ed.EventDate >= DateTime.UtcNow.Date)
+                                        .Where(ed => ed.EventDate >= DateTime.UtcNow.Date || ed.EventDate.Date == _currentEvent.StartDate.Date) // Uwzględnij też dzisiejsze lub pierwszy termin
                                         .OrderBy(ed => ed.EventDate)
                                         .FirstOrDefault() ??
                                       _currentEvent.EventDetails
@@ -90,11 +89,24 @@ namespace Rezerwix_project.Forms
             {
                 if (lblPricePerTicket != null) lblPricePerTicket.Text = $"Cena za bilet: {_currentEventDetail.PricePerTicket:C}";
                 if (lblAvailableSeats != null) lblAvailableSeats.Text = $"Dostępne miejsca: {_currentEventDetail.AvailableSeats}";
+
                 if (numTickets != null)
                 {
-                    numTickets.Maximum = _currentEventDetail.AvailableSeats > 0 ? _currentEventDetail.AvailableSeats : 1;
-                    numTickets.Value = _currentEventDetail.AvailableSeats > 0 ? 1 : 0;
-                    numTickets.Enabled = _currentEventDetail.AvailableSeats > 0;
+                    if (_currentEventDetail.AvailableSeats > 0)
+                    {
+                        numTickets.Minimum = 1;
+                        numTickets.Maximum = _currentEventDetail.AvailableSeats;
+                        numTickets.Value = 1;
+                        numTickets.Enabled = true;
+                    }
+                    else
+                    {
+                        numTickets.Minimum = 0;
+                        numTickets.Maximum = 0;
+                        numTickets.Value = 0;
+                        numTickets.Enabled = false;
+                        if (lblAvailableSeats != null) lblAvailableSeats.Text = "Dostępne miejsca: BRAK";
+                    }
                 }
                 if (btnReserve != null) btnReserve.Enabled = _currentEventDetail.AvailableSeats > 0;
                 UpdateTotalPrice();
@@ -102,8 +114,8 @@ namespace Rezerwix_project.Forms
             else
             {
                 if (lblPricePerTicket != null) lblPricePerTicket.Text = "Cena za bilet: N/A";
-                if (lblAvailableSeats != null) lblAvailableSeats.Text = "Dostępne miejsca: 0";
-                if (numTickets != null) { numTickets.Enabled = false; numTickets.Value = 0; }
+                if (lblAvailableSeats != null) lblAvailableSeats.Text = "Dostępne miejsca: N/A";
+                if (numTickets != null) { numTickets.Enabled = false; numTickets.Minimum = 0; numTickets.Value = 0; }
                 if (btnReserve != null) btnReserve.Enabled = false;
                 if (lblTotalPrice != null) lblTotalPrice.Text = "Łącznie: -";
             }
@@ -116,7 +128,7 @@ namespace Rezerwix_project.Forms
 
         private void UpdateTotalPrice()
         {
-            if (_currentEventDetail != null && numTickets != null && lblTotalPrice != null && numTickets.Enabled)
+            if (_currentEventDetail != null && numTickets != null && lblTotalPrice != null && numTickets.Enabled && numTickets.Value > 0)
             {
                 decimal totalPrice = numTickets.Value * _currentEventDetail.PricePerTicket;
                 lblTotalPrice.Text = $"Łącznie: {totalPrice:C}";

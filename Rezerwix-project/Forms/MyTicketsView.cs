@@ -1,5 +1,13 @@
-﻿using Rezerwix.Data;
+﻿// MyTicketsView.cs
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+using Rezerwix.Data;
+using Rezerwix.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Rezerwix_project.Forms
 {
@@ -36,7 +44,6 @@ namespace Rezerwix_project.Forms
             if (dgvMyTickets == null) return;
 
             dgvMyTickets.AutoGenerateColumns = false;
-            dgvMyTickets.ReadOnly = true;
             dgvMyTickets.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvMyTickets.AllowUserToAddRows = false;
             dgvMyTickets.AllowUserToDeleteRows = false;
@@ -54,27 +61,26 @@ namespace Rezerwix_project.Forms
 
             dgvMyTickets.Columns.Clear();
             dgvMyTickets.Columns.Add(new DataGridViewTextBoxColumn
-            { Name = "EventTitleCol", HeaderText = "Wydarzenie", DataPropertyName = "EventTitle", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, FillWeight = 30 });
+            { Name = "EventTitleCol", HeaderText = "Wydarzenie", DataPropertyName = "EventTitle", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, FillWeight = 30, ReadOnly = true });
             dgvMyTickets.Columns.Add(new DataGridViewTextBoxColumn
-            { Name = "EventDateCol", HeaderText = "Data wydarzenia", DataPropertyName = "EventDate", DefaultCellStyle = new DataGridViewCellStyle { Format = "yyyy-MM-dd HH:mm" }, AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells });
+            { Name = "EventDateCol", HeaderText = "Data wydarzenia", DataPropertyName = "EventDate", DefaultCellStyle = new DataGridViewCellStyle { Format = "yyyy-MM-dd HH:mm" }, AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells, ReadOnly = true });
             dgvMyTickets.Columns.Add(new DataGridViewTextBoxColumn
-            { Name = "TicketsCol", HeaderText = "Bilety", DataPropertyName = "NumberOfTickets", AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells });
+            { Name = "TicketsCol", HeaderText = "Bilety", DataPropertyName = "NumberOfTickets", AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells, ReadOnly = true });
             dgvMyTickets.Columns.Add(new DataGridViewTextBoxColumn
-            { Name = "ReservationDateCol", HeaderText = "Data rezerwacji", DataPropertyName = "ReservationDate", DefaultCellStyle = new DataGridViewCellStyle { Format = "yyyy-MM-dd HH:mm" }, AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells });
+            { Name = "ReservationDateCol", HeaderText = "Data rezerwacji", DataPropertyName = "ReservationDate", DefaultCellStyle = new DataGridViewCellStyle { Format = "yyyy-MM-dd HH:mm" }, AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells, ReadOnly = true });
             dgvMyTickets.Columns.Add(new DataGridViewTextBoxColumn
-            { Name = "StatusCol", HeaderText = "Status", DataPropertyName = "Status", AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells });
+            { Name = "StatusCol", HeaderText = "Status", DataPropertyName = "Status", AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells, ReadOnly = true });
 
             var cancelButtonColumn = new DataGridViewButtonColumn
             {
                 Name = "CancelCol",
                 HeaderText = "Akcja",
-                Text = "Anuluj",
-                UseColumnTextForButtonValue = true,
+                UseColumnTextForButtonValue = false,
                 FlatStyle = FlatStyle.Flat,
-                DefaultCellStyle = new DataGridViewCellStyle { BackColor = Color.Tomato, ForeColor = Color.White, Padding = new Padding(2), Alignment = DataGridViewContentAlignment.MiddleCenter }
+                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(2), Alignment = DataGridViewContentAlignment.MiddleCenter }
             };
             dgvMyTickets.Columns.Add(cancelButtonColumn);
-            dgvMyTickets.Columns.Add(new DataGridViewTextBoxColumn { Name = "ReservationIdCol", DataPropertyName = "ReservationId", Visible = false });
+            dgvMyTickets.Columns.Add(new DataGridViewTextBoxColumn { Name = "ReservationIdCol", DataPropertyName = "ReservationId", Visible = false, ReadOnly = true });
         }
 
         public async Task LoadUserTicketsAsync()
@@ -111,27 +117,24 @@ namespace Rezerwix_project.Forms
 
                     foreach (DataGridViewRow row in dgvMyTickets.Rows)
                     {
-                        if (row.DataBoundItem is MyTicketViewModel ticketVM)
+                        if (row.DataBoundItem is MyTicketViewModel ticketVM && row.Cells["CancelCol"] is DataGridViewButtonCell buttonCell)
                         {
-                            DataGridViewCell buttonCell = row.Cells["CancelCol"];
-                            if (buttonCell != null)
+                            bool canCancel = ticketVM.Status == "Aktywna";
+                            buttonCell.ReadOnly = !canCancel;
+
+                            if (!canCancel)
                             {
-                                bool canCancel = ticketVM.Status == "Aktywna" && ticketVM.EventDate > DateTime.UtcNow;
-                                buttonCell.ReadOnly = !canCancel;
-                                if (!canCancel)
-                                {
-                                    buttonCell.Style.BackColor = Color.Gray;
-                                    buttonCell.Style.ForeColor = Color.DarkGray;
-                                    buttonCell.Value = "---";
-                                    ((DataGridViewButtonCell)buttonCell).UseColumnTextForButtonValue = false;
-                                }
-                                else
-                                {
-                                    buttonCell.Style.BackColor = Color.Tomato;
-                                    buttonCell.Style.ForeColor = Color.White;
-                                    buttonCell.Value = "Anuluj";
-                                    ((DataGridViewButtonCell)buttonCell).UseColumnTextForButtonValue = true;
-                                }
+                                buttonCell.Value = "---";
+                                buttonCell.Style.BackColor = Color.LightGray;
+                                buttonCell.Style.ForeColor = Color.DarkGray;
+                                buttonCell.FlatStyle = FlatStyle.Standard;
+                            }
+                            else
+                            {
+                                buttonCell.Value = "Anuluj";
+                                buttonCell.Style.BackColor = Color.Tomato;
+                                buttonCell.Style.ForeColor = Color.White;
+                                buttonCell.FlatStyle = FlatStyle.Flat;
                             }
                         }
                     }
@@ -145,13 +148,13 @@ namespace Rezerwix_project.Forms
 
         private async void dgvMyTickets_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex != dgvMyTickets.Columns["CancelCol"]?.Index)
+            if (e.RowIndex < 0 || dgvMyTickets.Columns[e.ColumnIndex].Name != "CancelCol")
                 return;
 
             if (!(dgvMyTickets.Rows[e.RowIndex].DataBoundItem is MyTicketViewModel ticketVM)) return;
 
-            DataGridViewCell buttonCell = dgvMyTickets.Rows[e.RowIndex].Cells["CancelCol"];
-            if (buttonCell.ReadOnly)
+            DataGridViewButtonCell buttonCell = dgvMyTickets.Rows[e.RowIndex].Cells["CancelCol"] as DataGridViewButtonCell;
+            if (buttonCell == null || buttonCell.ReadOnly)
             {
                 return;
             }
@@ -173,7 +176,7 @@ namespace Rezerwix_project.Forms
 
                         if (reservationToCancel == null)
                         {
-                            MessageBox.Show("Nie znaleziono rezerwacji do anulowania.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Nie znaleziono rezerwacji do anulowania w bazie danych.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             await transaction.RollbackAsync();
                             return;
                         }
@@ -198,7 +201,7 @@ namespace Rezerwix_project.Forms
                     catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
-                        MessageBox.Show($"Błąd podczas anulowania rezerwacji: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Błąd podczas anulowania rezerwacji: {ex.Message}", "Błąd Krytyczny", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }

@@ -78,7 +78,7 @@
             this.dgvMyTickets.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
             this.dgvMyTickets.Location = new System.Drawing.Point(10, 70); // Pod panelem tytułowym
             this.dgvMyTickets.Name = "dgvMyTickets";
-            this.dgvMyTickets.ReadOnly = true;
+            this.dgvMyTickets.ReadOnly = false;
             this.dgvMyTickets.RowHeadersVisible = false;
             this.dgvMyTickets.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvMyTickets.Size = new System.Drawing.Size(764, 481);
