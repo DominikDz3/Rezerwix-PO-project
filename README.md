@@ -40,6 +40,16 @@ Aplikacja zawiera dedykowane funkcjonalności w zależności od roli którą pos
    Update-Database
    ```
 6. Następnie można uruchomić już aplikację z poziomu edytora
+  <br>Dane logowania:
+   ```
+    Użytkownik
+    Username: anowak
+    Password: User123!
+
+    Admin
+    Username: admin
+    Password: Admin123!
+   ```
 
 # Instrukcja obsługi
 ## Logowanie
